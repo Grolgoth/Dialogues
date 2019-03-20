@@ -1,5 +1,6 @@
 #include "rendereffect.h"
 #include <fstring.h>
+#include "dialoguesdl_functionality.h"
 
 static bool isColor(FString color)
 {
@@ -10,15 +11,17 @@ static bool isColor(FString color)
 		return false;
 	for (FString index : split)
 	{
-		if (index.length() > 3 || index.isEmpty())
+		if (index.isEmpty() || index.toInt() > 255)
 			return false;
 	}
 	return true;
 }
 
-RenderEffect::RenderEffect(FString metaText)
+RenderEffect::RenderEffect(FString metaText, SDL_Surface* target, int pointsize) : pointsize(pointsize), target(target)
 {
 	isValidMetaText(metaText);
+	area.x = 0;
+	area.y = 0;
 }
 
 bool RenderEffect::isValidMetaText(FString metaText)
@@ -37,6 +40,7 @@ bool RenderEffect::isValidMetaText(FString metaText)
 	{
 		if(metaText.substring(4).allDigits())
 		{
+			type = Type::FPC;
 			fpcValue = (unsigned)metaText.substring(4).toInt();
 		}
 		else
@@ -45,15 +49,17 @@ bool RenderEffect::isValidMetaText(FString metaText)
 			throw error;
 		}
 	}
-	else if ((metaText.startsWith("COLOUR") || metaText.startsWith("COLOR")) && metaText.toStdString().length() > 4 && metaText.charAt(3) == '=')
+	else if (metaText.startsWith("COLOR") && metaText.toStdString().length() > 5 && metaText.charAt(5) == '=')
 	{
-		if (isColor(metaText.substring(4)))
+		if (isColor(metaText.substring(6)))
 		{
 			type = Type::COLOR;
 			color.a = 255;
-			color.r = metaText.substring(4, 7).toInt();
-			color.g = metaText.substring(8, 11).toInt();
-			color.b = metaText.substring(12).toInt();
+
+			std::vector<FString> split = metaText.substring(6).split(",", true, true);
+			color.r = split[0].toInt();
+			color.g = split[1].toInt();
+			color.b = split[2].toInt();
 		}
 		else
 		{
@@ -67,4 +73,50 @@ bool RenderEffect::isValidMetaText(FString metaText)
 		throw error;
 	}
 	return true;
+}
+
+void RenderEffect::expandArea(int expansion)
+{
+	if (area.x + area.w == expansion)
+		return;
+	area.w = expansion - area.x;
+	int back = area.x;
+	switch(type)
+	{
+	case Type::BOUNCE:
+		if (bounce.size() > 0)
+			back = bounce[bounce.size() - 1].clip.x + bounce[bounce.size() - 1].clip.w;
+		bounce.push_back(Bounce(pointsize, back, expansion - back, area.y, area.h));
+		break;
+	default:
+		return;
+	}
+}
+
+void RenderEffect::apply()
+{
+	switch(type)
+	{
+	case Type::BOUNCE:
+		applyBounceEffect();
+		break;
+	case Type::SHAKE:
+		break;
+	case Type::SPIN:
+		break;
+	case Type::WAVE:
+		break;
+	default:
+		return;
+	}
+}
+
+void RenderEffect::applyBounceEffect()
+{
+	for(unsigned int i = 0; i < bounce.size(); i ++)
+	{
+		bounce[i].next();
+		if (bounce[i].ready)
+			DialogueSDL_Functionality::bounce(target, bounce[i].clip, bounce[i].up());
+	}
 }

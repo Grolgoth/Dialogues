@@ -1,6 +1,8 @@
 #ifndef RENDEREFFECT_H
 #define RENDEREFFECT_H
 #include <SDL2/SDL.h>
+#include "bounce.h"
+#include <vector>
 
 class FString;
 
@@ -21,14 +23,35 @@ class RenderEffect
 			COLOR,
 			FPC
 		};
-		RenderEffect(FString metaText);
+		enum State
+		{
+			INACTIVE,
+			OPEN,
+			SET
+		};
+		RenderEffect(FString metaText, SDL_Surface* target, int pointsize);
+		inline bool isActive() {return state != INACTIVE;}
+		inline Type getType() {return type;}
+		inline unsigned int getFpcValue() {return fpcValue;}
+		inline SDL_Color getColor() {return color;}
+		void apply();
+		void expandArea(int expansion);
 
 	private:
+		friend class TextPrinter;
+		Type type = NONE;
+		State state = INACTIVE;
 		SDL_Color color;
 		unsigned int fpcValue = 3;
-		Type type = NONE;
+		int pointsize;
+
+		SDL_Surface* target;
+		SDL_Rect area;
+
+		std::vector<Bounce> bounce;
 
 		bool isValidMetaText(FString metaText);
+		void applyBounceEffect();
 };
 
 #endif // RENDEREFFECT_H
