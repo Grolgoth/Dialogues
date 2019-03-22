@@ -48,7 +48,7 @@ class RenderEffect
 		SDL_Surface* target;
 		SDL_Rect area;
 
-		std::vector<Bounce> bounce;
+		std::vector<RenderEffectCore> effects;
 
 		bool isValidMetaText(FString metaText);
 		void applyBounceEffect();

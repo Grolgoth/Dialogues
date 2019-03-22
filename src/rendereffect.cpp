@@ -81,16 +81,9 @@ void RenderEffect::expandArea(int expansion)
 		return;
 	area.w = expansion - area.x;
 	int back = area.x;
-	switch(type)
-	{
-	case Type::BOUNCE:
-		if (bounce.size() > 0)
-			back = bounce[bounce.size() - 1].clip.x + bounce[bounce.size() - 1].clip.w;
-		bounce.push_back(Bounce(pointsize, back, expansion - back, area.y, area.h));
-		break;
-	default:
-		return;
-	}
+	if (effects.size() > 0)
+		back = effects[effects.size() - 1].clip.x + effects[effects.size() - 1].clip.w;
+	effects.push_back(Bounce(pointsize, back, expansion - back, area.y, area.h));
 }
 
 void RenderEffect::apply()
@@ -113,10 +106,10 @@ void RenderEffect::apply()
 
 void RenderEffect::applyBounceEffect()
 {
-	for(unsigned int i = 0; i < bounce.size(); i ++)
+	for(unsigned int i = 0; i < effects.size(); i ++)
 	{
-		bounce[i].next();
-		if (bounce[i].ready)
-			DialogueSDL_Functionality::bounce(target, bounce[i].clip, bounce[i].up());
+		effects[i].next();
+		if (effects[i].ready)
+			DialogueSDL_Functionality::bounce(target, effects[i].clip, static_cast<Bounce&>(effects[i]).up());
 	}
 }
