@@ -1,6 +1,6 @@
 #include "rendereffect.h"
 #include <fstring.h>
-#include "dialoguesdl_functionality.h"
+#include <custom_sdl_functions.h>
 
 static bool isColor(FString color)
 {
@@ -96,6 +96,7 @@ void RenderEffect::apply()
 	case Type::SHAKE:
 		break;
 	case Type::SPIN:
+		applySpinEffect();
 		break;
 	case Type::WAVE:
 		break;
@@ -110,6 +111,16 @@ void RenderEffect::applyBounceEffect()
 	{
 		effects[i].next();
 		if (effects[i].ready)
-			DialogueSDL_Functionality::bounce(target, effects[i].clip, static_cast<Bounce&>(effects[i]).up());
+			shift_pixels_vertical(target, static_cast<Bounce&>(effects[i]).up(), &effects[i].clip);
+	}
+}
+
+void RenderEffect::applySpinEffect()
+{
+	for(unsigned int i = 0; i < effects.size(); i ++)
+	{
+		effects[i].next();
+		if (effects[i].ready)
+			1+1;
 	}
 }

@@ -52,6 +52,7 @@ class RenderEffect
 
 		bool isValidMetaText(FString metaText);
 		void applyBounceEffect();
+		void applySpinEffect();
 };
 
 #endif // RENDEREFFECT_H

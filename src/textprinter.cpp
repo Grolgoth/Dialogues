@@ -1,5 +1,5 @@
 #include "textprinter.h"
-#include "dialoguesdl_functionality.h"
+#include <custom_sdl_functions.h>
 #include <sdl_ttf_custom.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -101,7 +101,7 @@ void TextPrinter::setColor(SDL_Surface* target, SDL_Color color)
 	{
 		source.r = 0; source.g = 0; source.b = 0;
 	}
-	DialogueSDL_Functionality::setColor(target, source, color);
+	set_color(target, source, color);
 	if (color.r != 0 || color.g != 0 || color.b != 0)
 		changedColors.insert(std::pair<SDL_Surface*, SDL_Color>(target, color));
 }
@@ -119,7 +119,7 @@ void TextPrinter::printNext()
 	}
 	SDL_Surface* glyph = glyphs.get((unsigned)characterIndex);
 	setColor(glyph, subject.currentColor);
-	DialogueSDL_Functionality::apply_surface(subject.xposOnSurface, subject.yposOnSurface, glyph, subject.currentState, nullptr);
+	apply_surface(subject.xposOnSurface, subject.yposOnSurface, glyph, subject.currentState, nullptr);
 	subject.xposOnSurface += characterWidths[characterIndex];
 	// space
 	if (character == 32)
@@ -133,7 +133,7 @@ void TextPrinter::startNewText(std::string text, unsigned int boxW, unsigned int
 	subject.text = text;
 	subject.boxW = boxW;
 	subject.boxH = boxH;
-	subject.currentState = DialogueSDL_Functionality::transparentSurface(boxW, boxH);
+	subject.currentState = createTransparentSurface(boxW, boxH);
 	checkText();
 }
 
