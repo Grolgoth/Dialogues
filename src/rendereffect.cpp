@@ -19,7 +19,7 @@ static bool isColor(FString color)
 	return true;
 }
 
-RenderEffect::RenderEffect(FString metaText, SDL_Surface* target, int pointsize) : pointsize(pointsize), target(target)
+RenderEffect::RenderEffect(FString metaText, SDL_Surface* target, int pointsize, int speed) : pointsize(pointsize), speed(speed), target(target)
 {
 	isValidMetaText(metaText);
 	area.x = 0;
@@ -27,7 +27,7 @@ RenderEffect::RenderEffect(FString metaText, SDL_Surface* target, int pointsize)
 }
 
 RenderEffect::RenderEffect(const RenderEffect& other) : type(other.type), state(other.state), color(other.color), fpcValue(other.fpcValue), pointsize(other.pointsize),
-	target(other.target), area(other.area), effects(other.effects)
+	speed(other.speed), target(other.target), area(other.area), effects(other.effects)
 {
 	for (RenderEffectCore* index : effects)
 		index->copies ++;
@@ -104,12 +104,12 @@ void RenderEffect::expandArea(int expansion)
 	if (effects.size() > 0)
 		back = effects[effects.size() - 1]->clip.x + effects[effects.size() - 1]->clip.w;
 	if (type == BOUNCE)
-		effects.push_back(new Bounce(pointsize, back, expansion - back, area.y, area.h, 15 - 5 * speed));
+		effects.push_back(new Bounce(pointsize, back, expansion - back, area.y, area.h, 16 - 5 * speed));
 	else if (type == SPIN)
 	{
 		SDL_Rect clip; clip.x = back; clip.w = expansion - back; clip.y = area.y; clip.h = area.h;
 		SDL_Surface* glyph = copy_surface(target, &clip);
-		effects.push_back(new Spin(pointsize, back, expansion - back, area.y, area.h, 3 - speed, false, glyph));
+		effects.push_back(new Spin(pointsize, back, expansion - back, area.y, area.h, 4 - speed, false, glyph));
 	}
 }
 

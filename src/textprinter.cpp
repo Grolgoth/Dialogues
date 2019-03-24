@@ -126,13 +126,14 @@ void TextPrinter::printNext()
 	subject.currentPos ++;
 }
 
-void TextPrinter::startNewText(std::string text, unsigned int boxW, unsigned int boxH)
+void TextPrinter::startNewText(std::string text, unsigned int boxW, unsigned int boxH, unsigned int effectSpeed)
 {
 	resetSubject();
 	subject.text = text;
 	subject.boxW = boxW;
 	subject.boxH = boxH;
 	subject.currentState = createTransparentSurface(boxW, boxH);
+	subject.speed = effectSpeed >= 3 ? 3 : effectSpeed;
 	checkText();
 }
 
@@ -251,7 +252,7 @@ std::string TextPrinter::extractMetaText(FString text, std::vector<unsigned int>
 		FString sub = text.substring(metaTextStartIndexes[i] + 3, metaTextCloseIndexes[i]);
 		try
 		{
-			subject.renderEffects.push_back(RenderEffect(sub, subject.currentState, font_px));
+			subject.renderEffects.push_back(RenderEffect(sub, subject.currentState, font_px, subject.speed));
 			metaText.push_back(text.substring(metaTextStartIndexes[i], metaTextCloseIndexes[i] + 3).toStdString());
 		}
 		catch (RenderEffect::UnsupportedTypeError error)

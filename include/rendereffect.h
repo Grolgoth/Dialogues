@@ -29,7 +29,7 @@ class RenderEffect
 			OPEN,
 			SET
 		};
-		RenderEffect(FString metaText, SDL_Surface* target, int pointsize);
+		RenderEffect(FString metaText, SDL_Surface* target, int pointsize, int speed);
 		RenderEffect(const RenderEffect& other);
 		~RenderEffect();
 		inline bool isActive() {return state != INACTIVE;}

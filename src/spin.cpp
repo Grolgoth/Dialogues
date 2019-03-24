@@ -2,8 +2,9 @@
 
 Spin::Spin(int pointsize, int xstart, int w, int ystart, int h, int framerate, bool right, SDL_Surface* glyph) : RenderEffectCore(pointsize, xstart, w, ystart, h, framerate), right(right), glyph(glyph)
 {
-	currentStep = right ? 360 : 0;
+	currentStep = right ? 328 : 32;
 	hasGlyph = glyph != nullptr;
+	wait = framerate;
 }
 
 Spin::~Spin()

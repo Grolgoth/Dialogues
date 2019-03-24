@@ -17,7 +17,7 @@ class TextPrinter
 		text parameter can include instructions like colour, bouncy/wavy text etc.
 		see Dialogues readme.txt to see options and syntax.
 		*/
-		void startNewText(std::string text, unsigned int boxW, unsigned int boxH);
+		void startNewText(std::string text, unsigned int boxW, unsigned int boxH, unsigned int effectSpeed);
 		void setCurrentFPC(unsigned int fpc);
 		SDL_Surface* getPrinted();
 		inline bool finished() {return subject.currentPos == subject.convertedText.size();}
@@ -41,6 +41,7 @@ class TextPrinter
 			SDL_Color currentColor;
 			int indexCurrentRenderEffect = -1;
 			unsigned int currentFPC = 5;
+			int speed = 1;
 		};
 		File font;
 		int font_px;
