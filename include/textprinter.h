@@ -58,6 +58,7 @@ class TextPrinter
 		void integrityCheck();
 		void loadFaceFromFile();
 		void printNext();
+		void handleNewLine();
 		void checkText();
 		void resetSubject();
 		void updateRenderSettings();

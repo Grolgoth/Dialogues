@@ -108,6 +108,11 @@ void TextPrinter::setColor(SDL_Surface* target, SDL_Color color)
 void TextPrinter::printNext()
 {
 	Uint16 character = subject.convertedText[subject.currentPos];
+	if (character == 10)
+	{
+		handleNewLine();
+		return;
+	}
 	int characterIndex = characters.getIndex(character);
 	if (characterIndex == -1)
 		throw "Fatal Error: character could not be found even after the check if all characters were present passed successfully. (For character with UTF8 decimal value " + FString::fromInt(character).toStdString() + ").";
@@ -124,6 +129,14 @@ void TextPrinter::printNext()
 	if (character == 32)
 		subject.xposOnSurface += text_w;
 	subject.currentPos ++;
+}
+
+void TextPrinter::handleNewLine()
+{
+	subject.xposOnSurface = textOffset;
+	subject.yposOnSurface += text_h;
+	subject.currentPos ++;
+	subject.framesSinceLastPrint = 0;
 }
 
 void TextPrinter::startNewText(std::string text, unsigned int boxW, unsigned int boxH, unsigned int effectSpeed)
@@ -201,7 +214,7 @@ void TextPrinter::checkText()
         Uint16 c = UTF8_getch(&textp, &textlen);
         if ( c == UNICODE_BOM_NATIVE || c == UNICODE_BOM_SWAPPED )
             continue;
-		if (!characters.contains(c))
+		if (!characters.contains(c) && c != 10)
 			std::cout << "Error: A certain character (" + FString::fromInt(c).toStdString() + ") in this text string: \"" + subject.text + "\" was not present in font " + font.getAbsolutePath() << " and will be omitted." << std::endl;
 		else
 			subject.convertedText.push_back(c);
