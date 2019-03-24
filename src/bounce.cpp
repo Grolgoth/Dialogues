@@ -1,6 +1,6 @@
 #include "bounce.h"
 
-Bounce::Bounce(int pointsize, int xstart, int w, int ystart, int h) : RenderEffectCore(pointsize, xstart, w, ystart, h)
+Bounce::Bounce(int pointsize, int xstart, int w, int ystart, int h, int framerate) : RenderEffectCore(pointsize, xstart, w, ystart, h, framerate)
 {
 
 }

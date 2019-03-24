@@ -1,9 +1,8 @@
 #include "spin.h"
 
-Spin::Spin(int pointsize, int xstart, int w, int ystart, int h, bool right, SDL_Surface* glyph) : RenderEffectCore(pointsize, xstart, w, ystart, h), right(right), glyph(glyph)
+Spin::Spin(int pointsize, int xstart, int w, int ystart, int h, int framerate, bool right, SDL_Surface* glyph) : RenderEffectCore(pointsize, xstart, w, ystart, h, framerate), right(right), glyph(glyph)
 {
 	currentStep = right ? 360 : 0;
-	framerate = 3;
 	hasGlyph = glyph != nullptr;
 }
 
@@ -21,15 +20,15 @@ void Spin::next()
 	{
 		if (right)
 		{
-			currentStep -=2;
-			if (currentStep == 0)
-				currentStep = 360;
+			currentStep -=4;
+			if (currentStep == 32)
+				currentStep = 328;
 		}
 		else
 		{
-			currentStep +=2;
-			if (currentStep == 360)
-				currentStep = 0;
+			currentStep +=4;
+			if (currentStep == 328)
+				currentStep = 32;
 		}
 		wait = 0;
 	}

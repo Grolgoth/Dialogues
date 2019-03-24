@@ -7,7 +7,7 @@ class RenderEffectCore
 	friend class RenderEffect;
 
 	protected:
-		RenderEffectCore(int pointsize, int xstart, int w, int ystart, int h);
+		RenderEffectCore(int pointsize, int xstart, int w, int ystart, int h, int framerate);
 		virtual ~RenderEffectCore(){}
 		int numSteps = 0;
 		int currentStep = 0;

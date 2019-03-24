@@ -46,6 +46,8 @@ class RenderEffect
 		SDL_Color color;
 		unsigned int fpcValue = 3;
 		int pointsize;
+		//Translates to the framerate at which we do stuff 1 is default and normal. Higher in this case actually means less delay frames so faster speed.
+		int speed = 1;
 
 		SDL_Surface* target;
 		SDL_Rect area;

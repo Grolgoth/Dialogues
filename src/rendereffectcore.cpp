@@ -1,6 +1,6 @@
 #include "rendereffectcore.h"
 
-RenderEffectCore::RenderEffectCore(int pointsize, int xstart, int w, int ystart, int h)
+RenderEffectCore::RenderEffectCore(int pointsize, int xstart, int w, int ystart, int h, int framerate) : framerate(framerate)
 {
 	numSteps = pointsize / 4;
 	if (numSteps %2 != 0)

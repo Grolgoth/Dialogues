@@ -7,7 +7,7 @@ class Bounce : public RenderEffectCore
 	friend class RenderEffect;
 
 	private:
-		Bounce(int pointsize, int xstart, int w, int ystart, int h);
+		Bounce(int pointsize, int xstart, int w, int ystart, int h, int framerate);
 		~Bounce(){}
 		bool up();
 };

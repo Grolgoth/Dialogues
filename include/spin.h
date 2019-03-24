@@ -7,7 +7,7 @@ class Spin : public RenderEffectCore
 	friend class RenderEffect;
 
 	private:
-		Spin(int pointsize, int xstart, int w, int ystart, int h, bool right = false, SDL_Surface* glyph = nullptr);
+		Spin(int pointsize, int xstart, int w, int ystart, int h, int framerate, bool right = false, SDL_Surface* glyph = nullptr);
 		~Spin();
 		void next();
 		bool right;

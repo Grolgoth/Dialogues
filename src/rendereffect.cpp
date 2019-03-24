@@ -104,12 +104,12 @@ void RenderEffect::expandArea(int expansion)
 	if (effects.size() > 0)
 		back = effects[effects.size() - 1]->clip.x + effects[effects.size() - 1]->clip.w;
 	if (type == BOUNCE)
-		effects.push_back(new Bounce(pointsize, back, expansion - back, area.y, area.h));
+		effects.push_back(new Bounce(pointsize, back, expansion - back, area.y, area.h, 15 - 5 * speed));
 	else if (type == SPIN)
 	{
 		SDL_Rect clip; clip.x = back; clip.w = expansion - back; clip.y = area.y; clip.h = area.h;
 		SDL_Surface* glyph = copy_surface(target, &clip);
-		effects.push_back(new Spin(pointsize, back, expansion - back, area.y, area.h, false, glyph));
+		effects.push_back(new Spin(pointsize, back, expansion - back, area.y, area.h, 3 - speed, false, glyph));
 	}
 }
 
