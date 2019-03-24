@@ -106,7 +106,11 @@ void RenderEffect::expandArea(int expansion)
 	if (type == BOUNCE)
 		effects.push_back(new Bounce(pointsize, back, expansion - back, area.y, area.h));
 	else if (type == SPIN)
-		effects.push_back(new Spin(pointsize, back, expansion - back, area.y, area.h));
+	{
+		SDL_Rect clip; clip.x = back; clip.w = expansion - back; clip.y = area.y; clip.h = area.h;
+		SDL_Surface* glyph = copy_surface(target, &clip);
+		effects.push_back(new Spin(pointsize, back, expansion - back, area.y, area.h, false, glyph));
+	}
 }
 
 void RenderEffect::apply()
@@ -144,6 +148,15 @@ void RenderEffect::applySpinEffect()
 	{
 		effects[i]->next();
 		if (effects[i]->ready && effects[i]->currentStep != 0)
-			spin_surface(target, effects[i]->currentStep, &effects[i]->clip);
+		{
+			if (static_cast<Spin*>(effects[i])->hasGlyph)
+			{
+				erase_surface(target, &effects[i]->clip);
+				SDL_Surface* modifiedGlyph = copy_surface(static_cast<Spin*>(effects[i])->glyph, nullptr);
+				spin_surface(modifiedGlyph, effects[i]->currentStep);
+				apply_surface(effects[i]->clip.x, effects[i]->clip.y, modifiedGlyph, target);
+				SDL_FreeSurface(modifiedGlyph);
+			}
+		}
 	}
 }
