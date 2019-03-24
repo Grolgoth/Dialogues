@@ -49,8 +49,7 @@ void TextPrinter::loadFaceFromFile()
 		characterWidths.push_back(maxx);
 		if (charcode == 69)
 			text_w = maxx;
-		if (maxy > text_h)
-			text_h = maxy;
+		text_h = 1.5 * (double)font_px;
 		glyphs.push_back(TTF_RenderGlyph_Solid(fontstruct, charcode, defaultColor));
 		charcode = FT_Get_Next_Char(TTF_GetFontFace(fontstruct), charcode, &gindex );
 	}

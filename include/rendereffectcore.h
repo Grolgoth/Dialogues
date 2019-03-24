@@ -8,13 +8,15 @@ class RenderEffectCore
 
 	protected:
 		RenderEffectCore(int pointsize, int xstart, int w, int ystart, int h);
+		virtual ~RenderEffectCore(){}
 		int numSteps = 0;
 		int currentStep = 0;
 		int framerate = 15;
 		int wait = 0;
 		SDL_Rect clip;
 		bool ready;
-		void next();
+		int copies = 0;
+		virtual void next();
 		inline void setFramerate(int framerate) {this->framerate = framerate;}
 };
 

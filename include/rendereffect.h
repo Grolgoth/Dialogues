@@ -1,8 +1,8 @@
 #ifndef RENDEREFFECT_H
 #define RENDEREFFECT_H
 #include <SDL2/SDL.h>
-#include "bounce.h"
 #include <vector>
+#include "rendereffectcore.h"
 
 class FString;
 
@@ -30,6 +30,8 @@ class RenderEffect
 			SET
 		};
 		RenderEffect(FString metaText, SDL_Surface* target, int pointsize);
+		RenderEffect(const RenderEffect& other);
+		~RenderEffect();
 		inline bool isActive() {return state != INACTIVE;}
 		inline Type getType() {return type;}
 		inline unsigned int getFpcValue() {return fpcValue;}
@@ -48,7 +50,7 @@ class RenderEffect
 		SDL_Surface* target;
 		SDL_Rect area;
 
-		std::vector<RenderEffectCore> effects;
+		std::vector<RenderEffectCore*> effects;
 
 		bool isValidMetaText(FString metaText);
 		void applyBounceEffect();
