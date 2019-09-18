@@ -4,7 +4,6 @@ Spin::Spin(int pointsize, int xstart, int w, int ystart, int h, int framerate, b
 {
 	currentStep = right ? 328 : 32;
 	hasGlyph = glyph != nullptr;
-	wait = framerate;
 }
 
 Spin::~Spin()

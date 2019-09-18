@@ -1,6 +1,6 @@
 #ifndef RENDEREFFECTCORE_H_INCLUDED
 #define RENDEREFFECTCORE_H_INCLUDED
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 class RenderEffectCore
 {

@@ -1,7 +1,7 @@
 #ifndef TEXTPRINTER_H
 #define TEXTPRINTER_H
 #include "rendereffect.h"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <File.h>
 #include <fstring.h>
 #include <vector.h>

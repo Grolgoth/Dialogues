@@ -1,6 +1,6 @@
 #ifndef RENDEREFFECT_H
 #define RENDEREFFECT_H
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <vector>
 #include "rendereffectcore.h"
 
@@ -20,6 +20,7 @@ class RenderEffect
 			BOUNCE,
 			SHAKE,
 			SPIN,
+			SPIN2,
 			COLOR,
 			FPC
 		};
@@ -57,6 +58,7 @@ class RenderEffect
 		bool isValidMetaText(FString metaText);
 		void applyBounceEffect();
 		void applySpinEffect();
+		void applySafeSpinEffect();
 };
 
 #endif // RENDEREFFECT_H

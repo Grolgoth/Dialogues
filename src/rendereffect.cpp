@@ -3,6 +3,7 @@
 #include <custom_sdl_functions.h>
 #include "bounce.h"
 #include "spin.h"
+#include "wheelspin.h"
 
 static bool isColor(FString color)
 {
@@ -56,6 +57,8 @@ bool RenderEffect::isValidMetaText(FString metaText)
 		type = Type::SHAKE;
 	else if (metaText.toStdString() == "SPIN")
 		type = Type::SPIN;
+    else if (metaText.toStdString() == "SPIN2")
+        type = Type::SPIN2;
 	else if (metaText.startsWith("FPC", false) && metaText.toStdString().length() > 4 && metaText.charAt(3) == '=' && metaText.substring(4).toStdString().length() < 7)
 	{
 		if(metaText.substring(4).allDigits())
@@ -111,6 +114,12 @@ void RenderEffect::expandArea(int expansion)
 		SDL_Surface* glyph = copy_surface(target, &clip);
 		effects.push_back(new Spin(pointsize, back, expansion - back, area.y, area.h, 4 - speed, false, glyph));
 	}
+	else if (type == SPIN2)
+    {
+        SDL_Rect clip; clip.x = back; clip.w = expansion - back; clip.y = area.y; clip.h = area.h;
+		SDL_Surface* glyph = copy_surface(target, &clip);
+        effects.push_back(new WheelSpin(pointsize, back, expansion - back, area.y, area.h, 4 - speed, false, glyph));
+    }
 }
 
 void RenderEffect::apply()
@@ -125,6 +134,9 @@ void RenderEffect::apply()
 	case Type::SPIN:
 		applySpinEffect();
 		break;
+    case Type::SPIN2:
+        applySafeSpinEffect();
+        break;
 	case Type::WAVE:
 		break;
 	default:
@@ -157,6 +169,20 @@ void RenderEffect::applySpinEffect()
 				apply_surface(effects[i]->clip.x, effects[i]->clip.y, modifiedGlyph, target);
 				SDL_FreeSurface(modifiedGlyph);
 			}
+		}
+	}
+}
+
+void RenderEffect::applySafeSpinEffect()
+{
+    for(unsigned int i = 0; i < effects.size(); i ++)
+	{
+		effects[i]->next();
+		if (effects[i]->ready && effects[i]->currentStep != 0)
+		{
+		    spin_surface_safe(static_cast<WheelSpin*>(effects[i])->glyph, static_cast<WheelSpin*>(effects[i])->getPreviousSpins(), 4,
+                effects[i]->numSteps, static_cast<WheelSpin*>(effects[i])->tileSets, static_cast<WheelSpin*>(effects[i])->right);
+            apply_surface(effects[i]->clip.x, effects[i]->clip.y, static_cast<WheelSpin*>(effects[i])->glyph, target);
 		}
 	}
 }
