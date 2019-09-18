@@ -180,9 +180,9 @@ void RenderEffect::applySafeSpinEffect()
 		effects[i]->next();
 		if (effects[i]->ready && effects[i]->currentStep != 0)
 		{
-		    spin_surface_safe(static_cast<WheelSpin*>(effects[i])->glyph, static_cast<WheelSpin*>(effects[i])->getPreviousSpins(), 4,
-                effects[i]->numSteps, static_cast<WheelSpin*>(effects[i])->tileSets, static_cast<WheelSpin*>(effects[i])->right);
-            apply_surface(effects[i]->clip.x, effects[i]->clip.y, static_cast<WheelSpin*>(effects[i])->glyph, target);
+		    erase_surface(target, &effects[i]->clip);
+		    spin_surface_safe(target, static_cast<WheelSpin*>(effects[i])->glyph, static_cast<WheelSpin*>(effects[i])->getPreviousSpins(), 2,
+                effects[i]->numSteps, static_cast<WheelSpin*>(effects[i])->tileSets, static_cast<WheelSpin*>(effects[i])->right, &effects[i]->clip);
 		}
 	}
 }
