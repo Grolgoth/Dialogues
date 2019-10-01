@@ -44,6 +44,7 @@ class TextPrinter
 			int speed = 1;
 		};
 		File font;
+		inline bool inRenderEffectIndexes(int index){return Vector<unsigned int>::fromStdVector(subject.RenderEffectIndexes).contains(index);}
 		int font_px;
 		int text_w = 0;
 		int text_h = 0;

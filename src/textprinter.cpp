@@ -120,12 +120,13 @@ void TextPrinter::printNext()
 	{
 		subject.xposOnSurface = textOffset;
 		subject.yposOnSurface += text_h;
-		if (subject.renderEffects.size() > 0 && subject.renderEffects[subject.indexCurrentRenderEffect].state == RenderEffect::OPEN)
+		if (subject.renderEffects.size() > 0 && subject.renderEffects[subject.indexCurrentRenderEffect].state == RenderEffect::OPEN && !inRenderEffectIndexes(subject.currentPos))
 		{
 			RenderEffect::Type previousType = subject.renderEffects[subject.indexCurrentRenderEffect].type;
-			subject.RenderEffectIndexes.insert(subject.RenderEffectIndexes.begin() + subject.indexCurrentRenderEffect, subject.currentPos + 1);
+			subject.RenderEffectIndexes.insert(subject.RenderEffectIndexes.begin() + subject.indexCurrentRenderEffect, subject.currentPos);
 			subject.renderEffects.insert(subject.renderEffects.begin() + subject.indexCurrentRenderEffect, RenderEffect(previousType, subject.currentState, font_px, subject.speed));
 			subject.indexCurrentRenderEffect++;
+			updateRenderSettings();
 		}
 	}
 	SDL_Surface* glyph = glyphs.get((unsigned)characterIndex);
