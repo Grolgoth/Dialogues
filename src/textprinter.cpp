@@ -214,9 +214,9 @@ void TextPrinter::checkText()
         Uint16 c = UTF8_getch(&textp, &textlen);
         if ( c == UNICODE_BOM_NATIVE || c == UNICODE_BOM_SWAPPED )
             continue;
-		if (!characters.contains(c) && c != 10)
+		if (!characters.contains(c) && c != 10 && c != 13)
 			std::cout << "Error: A certain character (" + FString::fromInt(c).toStdString() + ") in this text string: \"" + subject.text + "\" was not present in font " + font.getAbsolutePath() << " and will be omitted." << std::endl;
-		else
+		else if (c != 13)
 			subject.convertedText.push_back(c);
 	}
 }
@@ -262,11 +262,11 @@ std::string TextPrinter::extractMetaText(FString text, std::vector<unsigned int>
 	std::vector<std::string> metaText;
 	for (unsigned int i = 0; i < metaTextStartIndexes.size(); i++)
 	{
-		FString sub = text.substring(metaTextStartIndexes[i] + 3, metaTextCloseIndexes[i]);
+		FString sub = text.substring(metaTextStartIndexes[i] + 4, metaTextCloseIndexes[i]);
 		try
 		{
 			subject.renderEffects.push_back(RenderEffect(sub, subject.currentState, font_px, subject.speed));
-			metaText.push_back(text.substring(metaTextStartIndexes[i], metaTextCloseIndexes[i] + 3).toStdString());
+			metaText.push_back(text.substring(metaTextStartIndexes[i], metaTextCloseIndexes[i] + 4).toStdString());
 		}
 		catch (RenderEffect::UnsupportedTypeError error)
 		{
