@@ -27,6 +27,12 @@ RenderEffect::RenderEffect(FString metaText, SDL_Surface* target, int pointsize,
 	area.y = 0;
 }
 
+RenderEffect::RenderEffect(Type type, SDL_Surface* target, int pointsize, int speed) : type(type), pointsize(pointsize), speed(speed), target(target)
+{
+	area.x = 0;
+	area.y = 0;
+}
+
 RenderEffect::RenderEffect(const RenderEffect& other) : type(other.type), state(other.state), color(other.color), fpcValue(other.fpcValue), pointsize(other.pointsize),
 	speed(other.speed), target(other.target), area(other.area), effects(other.effects)
 {

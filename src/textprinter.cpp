@@ -120,6 +120,13 @@ void TextPrinter::printNext()
 	{
 		subject.xposOnSurface = textOffset;
 		subject.yposOnSurface += text_h;
+		if (subject.renderEffects.size() > 0 && subject.renderEffects[subject.indexCurrentRenderEffect].state == RenderEffect::OPEN)
+		{
+			RenderEffect::Type previousType = subject.renderEffects[subject.indexCurrentRenderEffect].type;
+			subject.RenderEffectIndexes.insert(subject.RenderEffectIndexes.begin() + subject.indexCurrentRenderEffect, subject.currentPos + 1);
+			subject.renderEffects.insert(subject.renderEffects.begin() + subject.indexCurrentRenderEffect, RenderEffect(previousType, subject.currentState, font_px, subject.speed));
+			subject.indexCurrentRenderEffect++;
+		}
 	}
 	SDL_Surface* glyph = glyphs.get((unsigned)characterIndex);
 	setColor(glyph, subject.currentColor);
