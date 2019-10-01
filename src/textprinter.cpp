@@ -224,9 +224,9 @@ void TextPrinter::checkText()
 std::string TextPrinter::parse(std::string text)
 {
 	FString textStr(text);
-	std::vector<unsigned int> metaTextStartIndexes = textStr.findAll("/\\<");
+	std::vector<unsigned int> metaTextStartIndexes = textStr.findAll("/\\\\<");
 	subject.RenderEffectIndexes = metaTextStartIndexes;
-	std::vector<unsigned int> metaTextCloseIndexes = textStr.findAll("/\\>");
+	std::vector<unsigned int> metaTextCloseIndexes = textStr.findAll("/\\\\>");
 	if (metaTextCloseIndexes.size() != metaTextCloseIndexes.size())
 		throw "Error: Cannot render following text " + text + " because its meta-format is invalid.";
 	return extractMetaText(textStr, metaTextStartIndexes, metaTextCloseIndexes);
