@@ -184,7 +184,7 @@ void RenderEffect::applySafeSpinEffect()
     for(unsigned int i = 0; i < effects.size(); i ++)
 	{
 		effects[i]->next();
-		if (effects[i]->ready && effects[i]->currentStep != 0)
+		if (effects[i]->ready && effects[i]->currentStep != 0 && static_cast<WheelSpin*>(effects[i])->glyph != nullptr)
 		{
 		    erase_surface(target, &effects[i]->clip);
 		    spin_surface_safe(target, static_cast<WheelSpin*>(effects[i])->glyph, static_cast<WheelSpin*>(effects[i])->getPreviousSpins(), 2,
