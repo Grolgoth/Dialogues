@@ -11,10 +11,9 @@ class Shake : public RenderEffectCore
 		~Shake(){}
 		void next();
 		inline bool isCoolingDown() {return shakes == 0;}
-		// 0 = up, 1 = right, 2 = down, 3 = right
+		// 0 = up, 1 = right, 2 = down, 3 = left
 		int direction = 0;
-		int shakes = 18;
-		int pixelShifts = 1;
+		int shakes = 0;
 };
 
 #endif // BOUNCE_H

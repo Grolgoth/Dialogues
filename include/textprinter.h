@@ -59,6 +59,7 @@ class TextPrinter
 		void integrityCheck();
 		void loadFaceFromFile();
 		void printNext();
+		void printCharacter(SDL_Surface* glyph, int characterIndex);
 		void handleNewLine();
 		void checkText();
 		void resetSubject();

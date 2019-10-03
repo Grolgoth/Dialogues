@@ -202,11 +202,8 @@ void RenderEffect::applyShakeEffect()
 		{
 			int situation = static_cast<Shake*>(effects[i])->shakes;
 			int direction = static_cast<Shake*>(effects[i])->direction;
-			int numShifts = static_cast<Shake*>(effects[i])->pixelShifts;
 			while(double(situation) / 6.0 > 1)
 				situation -=6;
-			for (int j = 0; j < numShifts; j++)
-			{
 				//up
 				if ((situation > 3 && direction == 0) || (situation < 4 && direction == 2))
 					shift_pixels_vertical(target, true, &effects[i]->clip);
@@ -219,7 +216,6 @@ void RenderEffect::applyShakeEffect()
 				//left
 				if ((situation > 3 && direction == 3) || (situation < 4 && direction == 1))
 					shift_pixels_horizontal(target, false, &effects[i]->clip);
-			}
 			static_cast<Shake*>(effects[i])->shakes --;
 		}
 	}

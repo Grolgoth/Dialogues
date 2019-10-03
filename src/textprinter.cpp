@@ -105,6 +105,24 @@ void TextPrinter::setColor(SDL_Surface* target, SDL_Color color)
 		changedColors.insert(std::pair<SDL_Surface*, SDL_Color>(target, color));
 }
 
+void TextPrinter::printCharacter(SDL_Surface* glyph, int characterIndex)
+{
+	setColor(glyph, subject.currentColor);
+	int extraX = 0;
+	if (subject.indexCurrentRenderEffect != -1 && subject.renderEffects[subject.indexCurrentRenderEffect].type == RenderEffect::SHAKE)
+	{
+		int width = characterWidths[characterIndex];
+		do
+		{
+			extraX += 3;
+			width -= 30;
+		}
+		while (width > 30);
+	}
+	apply_surface(subject.xposOnSurface + extraX, subject.yposOnSurface, glyph, subject.currentState, nullptr);
+	subject.xposOnSurface += characterWidths[characterIndex] + 2 * extraX;
+}
+
 void TextPrinter::printNext()
 {
 	Uint16 character = subject.convertedText[subject.currentPos];
@@ -130,9 +148,7 @@ void TextPrinter::printNext()
 		}
 	}
 	SDL_Surface* glyph = glyphs.get((unsigned)characterIndex);
-	setColor(glyph, subject.currentColor);
-	apply_surface(subject.xposOnSurface, subject.yposOnSurface, glyph, subject.currentState, nullptr);
-	subject.xposOnSurface += characterWidths[characterIndex];
+	printCharacter(glyph, characterIndex);
 	// space
 	if (character == 32)
 		subject.xposOnSurface += text_w;

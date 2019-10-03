@@ -5,8 +5,9 @@
 Shake::Shake(int pointsize, int xstart, int w, int ystart, int h, int framerate) : RenderEffectCore(pointsize, xstart, w, ystart, h, framerate)
 {
 	numSteps = 48;
-	for (int width = w; width > 20; width -= 20)
-		pixelShifts++;
+	direction = RandomNumberGenerator::randomInt(0, 3);
+	if (RandomNumberGenerator::randomInt(0, 1));
+		shakes = RandomNumberGenerator::randomInt(2, 4) * 6;
 }
 
 void Shake::next()
