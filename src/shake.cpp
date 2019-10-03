@@ -15,6 +15,7 @@ void Shake::next()
 	ready = wait >= framerate;
 	if (ready)
 	{
+		currentStep ++;
 		if (currentStep > numSteps)
 		{
 			currentStep = 1;

@@ -205,7 +205,7 @@ void RenderEffect::applyShakeEffect()
 			int numShifts = static_cast<Shake*>(effects[i])->pixelShifts;
 			while(double(situation) / 6.0 > 1)
 				situation -=6;
-			for (int i = 0; i < numShifts; i++)
+			for (int j = 0; j < numShifts; j++)
 			{
 				//up
 				if ((situation > 3 && direction == 0) || (situation < 4 && direction == 2))
