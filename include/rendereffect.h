@@ -16,7 +16,6 @@ class RenderEffect
 		enum Type
 		{
 			NONE,
-			WAVE,
 			BOUNCE,
 			SHAKE,
 			SPIN,
@@ -60,6 +59,7 @@ class RenderEffect
 		void applyBounceEffect();
 		void applySpinEffect();
 		void applySafeSpinEffect();
+		void applyShakeEffect();
 };
 
 #endif // RENDEREFFECT_H

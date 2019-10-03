@@ -4,6 +4,7 @@
 #include "bounce.h"
 #include "spin.h"
 #include "wheelspin.h"
+#include "shake.h"
 
 static bool isColor(FString color)
 {
@@ -55,8 +56,6 @@ bool RenderEffect::isValidMetaText(FString metaText)
 {
 	if (metaText.toStdString() == "NONE")
 		type = Type::NONE;
-	else if (metaText.toStdString() == "WAVE")
-		type = Type::WAVE;
 	else if (metaText.toStdString() == "BOUNCE")
 		type = Type::BOUNCE;
 	else if (metaText.toStdString() == "SHAKE")
@@ -126,6 +125,8 @@ void RenderEffect::expandArea(int expansion)
 		SDL_Surface* glyph = copy_surface(target, &clip);
         effects.push_back(new WheelSpin(pointsize, back, expansion - back, area.y, area.h, 4 - speed, false, glyph));
     }
+    else if (type == SHAKE)
+		effects.push_back(new Shake(pointsize, back, expansion - back, area.y, area.h, 16 - 5 * speed));
 }
 
 void RenderEffect::apply()
@@ -136,6 +137,7 @@ void RenderEffect::apply()
 		applyBounceEffect();
 		break;
 	case Type::SHAKE:
+		applyShakeEffect();
 		break;
 	case Type::SPIN:
 		applySpinEffect();
@@ -143,8 +145,6 @@ void RenderEffect::apply()
     case Type::SPIN2:
         applySafeSpinEffect();
         break;
-	case Type::WAVE:
-		break;
 	default:
 		return;
 	}
@@ -189,6 +189,38 @@ void RenderEffect::applySafeSpinEffect()
 		    erase_surface(target, &effects[i]->clip);
 		    spin_surface_safe(target, static_cast<WheelSpin*>(effects[i])->glyph, static_cast<WheelSpin*>(effects[i])->getPreviousSpins(), 2,
                 effects[i]->numSteps, static_cast<WheelSpin*>(effects[i])->tileSets, static_cast<WheelSpin*>(effects[i])->right, &effects[i]->clip);
+		}
+	}
+}
+
+void RenderEffect::applyShakeEffect()
+{
+	for(unsigned int i = 0; i < effects.size(); i ++)
+	{
+		effects[i]->next();
+		if (effects[i]->ready && !static_cast<Shake*>(effects[i])->isCoolingDown())
+		{
+			int situation = static_cast<Shake*>(effects[i])->shakes;
+			int direction = static_cast<Shake*>(effects[i])->direction;
+			int numShifts = static_cast<Shake*>(effects[i])->pixelShifts;
+			while(double(situation) / 6.0 > 1)
+				situation -=6;
+			for (int i = 0; i < numShifts; i++)
+			{
+				//up
+				if ((situation > 3 && direction == 0) || (situation < 4 && direction == 2))
+					shift_pixels_vertical(target, true, &effects[i]->clip);
+				//right
+				if ((situation > 3 && direction == 1) || (situation < 4 && direction == 3))
+					shift_pixels_horizontal(target, true, &effects[i]->clip);
+				//down
+				if ((situation > 3 && direction == 2) || (situation < 4 && direction == 0))
+					shift_pixels_vertical(target, false, &effects[i]->clip);
+				//left
+				if ((situation > 3 && direction == 3) || (situation < 4 && direction == 1))
+					shift_pixels_horizontal(target, false, &effects[i]->clip);
+			}
+			static_cast<Shake*>(effects[i])->shakes --;
 		}
 	}
 }
