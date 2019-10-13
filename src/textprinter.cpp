@@ -35,7 +35,11 @@ void TextPrinter::integrityCheck()
 
 void TextPrinter::loadFaceFromFile()
 {
+	if (!font.exists())
+		throw "Can't open this font because it doesn't exist: " + font.getAbsolutePath();
 	TTF_Font* fontstruct = TTF_OpenFont(font.getAbsolutePath().c_str(), font_px);
+	if (fontstruct == nullptr)
+		throw TTF_GetError();
 	FT_ULong charcode;
 	FT_UInt gindex;
 	SDL_Color defaultColor; defaultColor.a = 255; defaultColor.b = 0; defaultColor.g = 0; defaultColor.r = 0;
