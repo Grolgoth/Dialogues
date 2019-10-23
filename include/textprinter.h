@@ -21,13 +21,13 @@ class TextPrinter
 		void setCurrentFPC(unsigned int fpc);
 		SDL_Surface* getPrinted();
 		inline bool finished() {return subject.currentPos == subject.convertedText.size();}
+		inline unsigned int getNumCharsPrinted() {return subject.currentPos;}
 
 	private:
 		TextPrinter(const TextPrinter& other);
 
 		struct Subject
 		{
-			std::string text = "";
 			unsigned int boxW = 0;
 			unsigned int boxH = 0;
 			SDL_Surface* currentState = nullptr;
@@ -56,20 +56,22 @@ class TextPrinter
 
 		Subject subject;
 
+		bool unescapedBackslashCheck(FString text);
 		void integrityCheck();
 		void loadFaceFromFile();
 		void printNext();
 		void printCharacter(SDL_Surface* glyph, int characterIndex);
 		void handleNewLine();
-		void checkText();
+		void checkText(unsigned char* text, unsigned int bytes);
 		void resetSubject();
 		void updateRenderSettings();
 		void processRenderEffect(RenderEffect effect, int index);
 		void updateActiveRenderEffects();
 		void setColor(SDL_Surface* target, SDL_Color color);
 		void correctRenderEffectIndexes(std::vector<std::string> metaTexts);
-		std::string extractMetaText(FString text, std::vector<unsigned int> metaTextStartIndexes, std::vector<unsigned int> metaTextCloseIndexes);
-		std::string parse(std::string text);
+		void extractMetaText(FString text, std::vector<unsigned int> metaTextStartIndexes, std::vector<unsigned int> metaTextCloseIndexes);
+		void parse();
+		std::string subjectTextToSimpleString();
 };
 
 #endif // TEXTPRINTER_H

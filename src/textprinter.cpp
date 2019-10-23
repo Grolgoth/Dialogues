@@ -3,6 +3,7 @@
 #include <sdl_ttf_custom.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include <math.h>
 
 TextPrinter::TextPrinter(File font, unsigned int font_px) : font(font), font_px(font_px), textOffset(font_px / 2), characters(true)
 {
@@ -167,15 +168,34 @@ void TextPrinter::handleNewLine()
 	subject.framesSinceLastPrint = 0;
 }
 
+unsigned char* U8StringToCharArray(std::string u8String)
+{
+	unsigned char* buffer = new unsigned char[u8String.length()];
+	int i = 0;
+	for (char a : u8String)
+	{
+		int ai = int(a);
+		if (ai < 0)
+		{
+			ai = 256 + ai;
+		}
+		buffer[i] = ai;
+		i++;
+	}
+	return buffer;
+}
+
 void TextPrinter::startNewText(std::string text, unsigned int boxW, unsigned int boxH, unsigned int effectSpeed)
 {
 	resetSubject();
-	subject.text = text;
 	subject.boxW = boxW;
 	subject.boxH = boxH;
 	subject.currentState = createTransparentSurface(boxW, boxH);
 	subject.speed = effectSpeed >= 3 ? 3 : effectSpeed;
-	checkText();
+
+	unsigned char* textp = U8StringToCharArray(text);
+	checkText(textp, text.length());
+	delete[] textp;
 }
 
 void TextPrinter::resetSubject()
@@ -233,46 +253,139 @@ void TextPrinter::updateActiveRenderEffects()
 	}
 }
 
-void TextPrinter::checkText()
+Uint16 fourByteChar(unsigned char* bytes)
 {
-	const char* textp = parse(subject.text).c_str();
-	size_t textlen = SDL_strlen(textp);
-	while ( textlen > 0 )
+	Uint16 result = 0;
+	int bigPictureValue = int(bytes[0]) - 240;
+	for (double n = 2.0; bigPictureValue >= pow(2.0, n); n--)
 	{
-        Uint16 c = UTF8_getch(&textp, &textlen);
-        if ( c == UNICODE_BOM_NATIVE || c == UNICODE_BOM_SWAPPED )
-            continue;
-		if (!characters.contains(c) && c != 10 && c != 13)
-			std::cout << "Error: A certain character (" + FString::fromInt(c).toStdString() + ") in this text string: \"" + subject.text + "\" was not present in font " + font.getAbsolutePath() << " and will be omitted." << std::endl;
-		else if (c != 13)
-			subject.convertedText.push_back(c);
+		result += pow(2.0, n + 18.0);
+		bigPictureValue -= pow (2.0, n);
 	}
+	for (unsigned int i = 1; i < 4; i++)
+	{
+		bigPictureValue = int(bytes[i]) - 128;
+		for (double n = 5.0; bigPictureValue >= pow(2.0, n); n--)
+		{
+			result += pow(2.0, n + ((3 - i) * 6));
+			bigPictureValue -= pow (2.0, n);
+		}
+	}
+	return result;
 }
 
-std::string TextPrinter::parse(std::string text)
+Uint16 threeByteChar(unsigned char* bytes)
 {
-	FString textStr(text);
+	Uint16 result = 0;
+	int bigPictureValue = int(bytes[0]) - 224;
+	for (double n = 3.0; bigPictureValue >= pow(2.0, n); n--)
+	{
+		result += pow(2.0, n + 12.0);
+		bigPictureValue -= pow (2.0, n);
+	}
+	for (unsigned int i = 1; i < 3; i++)
+	{
+		bigPictureValue = int(bytes[i]) - 128;
+		for (double n = 5.0; bigPictureValue >= pow(2.0, n); n--)
+		{
+			result += pow(2.0, n + ((2 - i) * 6));
+			bigPictureValue -= pow (2.0, n);
+		}
+	}
+	return result;
+}
+
+Uint16 twoByteChar(unsigned char* bytes)
+{
+	Uint16 result = 0;
+	int bigPictureValue = int(bytes[0]) - 192;
+	for (double n = 4.0; bigPictureValue >= pow(2.0, n); n--)
+	{
+		result += pow(2.0, n + 6.0);
+		bigPictureValue -= pow (2.0, n);
+	}
+	bigPictureValue = int(bytes[1]) - 128;
+	for (double n = 5.0; bigPictureValue >= pow(2.0, n); n--)
+	{
+		result += pow(2.0, n);
+		bigPictureValue -= pow (2.0, n);
+	}
+	return result;
+}
+
+void TextPrinter::checkText(unsigned char* text, unsigned int bytes)
+{
+	for (unsigned int i = 0; i < bytes; i++)
+	{
+		Uint16 result = 0;
+		if (int(text[i]) == 0)
+			break;
+		if (text[i] > 0x00 && text[i] <= 0x7F)
+			result = int(text[i]);
+		else if (text[i] >= 0xC0 && text[i] <= 0xDF)
+		{
+			unsigned char refs[2] = {text[i], text[i + 1]};
+			result = twoByteChar(refs);
+			i++;
+		}
+		else if (text[i] >= 0xE0 && text[i] <= 0xEF)
+		{
+			unsigned char refs[3] = {text[i], text[i + 1], text[i + 2]};
+			result = threeByteChar(refs);
+			i += 2;
+		}
+		else if (text[i] >= 0xF0 && text[i] <= 0xF7)
+		{
+			unsigned char refs[4] = {text[i], text[i + 1], text[i + 2], text[i + 3]};
+			result = fourByteChar(refs);
+			i += 3;
+		}
+		else
+			throw "Invalid UTF-8 encoding";
+		if (!characters.contains(result) && result != 10 && result != 13)
+		{
+			std::string textstring = "";
+			for (unsigned int i = 0; i < bytes; i++)
+				textstring += text[i];
+			std::cout << "Error: A certain character (" + FString::fromInt(result).toStdString() + ") was in this text string: " + textstring + " was not present in font " + font.getAbsolutePath() << " and will be omitted." << std::endl;
+		}
+		else
+			subject.convertedText.push_back(result);
+	}
+	parse();
+}
+
+void TextPrinter::parse()
+{
+	FString textStr(subjectTextToSimpleString());
 	std::vector<unsigned int> metaTextStartIndexes = textStr.findAll("/\\\\<");
 	subject.RenderEffectIndexes = metaTextStartIndexes;
 	std::vector<unsigned int> metaTextCloseIndexes = textStr.findAll("/\\\\>");
 	if (metaTextCloseIndexes.size() != metaTextCloseIndexes.size())
-		throw "Error: Cannot render following text " + text + " because its meta-format is invalid.";
-	return extractMetaText(textStr, metaTextStartIndexes, metaTextCloseIndexes);
+		throw "Error: Cannot render following text " + textStr.toStdString() + " because its meta-format is invalid.";
+	extractMetaText(textStr, metaTextStartIndexes, metaTextCloseIndexes);
 }
 
-static bool unescapedBackslashCheck(FString* text)
+bool TextPrinter::unescapedBackslashCheck(FString text)
 {
 	int startIndex = 0;
-	while (text->indexOf("\\", true, startIndex) > -1)
+	while (text.indexOf("\\", true, startIndex) > -1)
 	{
-		startIndex = text->indexOf("\\", true, startIndex);
-		if (unsigned(startIndex + 1) == text->length())
+		startIndex = text.indexOf("\\", true, startIndex);
+		if (unsigned(startIndex + 1) == text.length())
 			return false;
-		char next = text->charAt(startIndex + 1);
+		char next = text.charAt(startIndex + 1);
 		if (next == '\\')
-			*text = text->replace("\\\\", "\\", true, false);
+		{
+			text = text.replace("\\\\", "\\", true, false);
+			subject.convertedText.erase(subject.convertedText.begin() + startIndex);
+		}
 		else if(next == 'n')
-			*text = text->replace("\\n", "\n");
+		{
+			text = text.replace("\\n", "\n");
+			subject.convertedText.erase(subject.convertedText.begin() + startIndex, subject.convertedText.begin() + startIndex + 1);
+			subject.convertedText.insert(subject.convertedText.begin() + startIndex, 10);
+		}
 		else
 			return false;
 		startIndex ++;
@@ -287,10 +400,13 @@ void TextPrinter::correctRenderEffectIndexes(std::vector<std::string> metaText)
 	{
 		total_offset += metaText[i].length();
 		subject.RenderEffectIndexes[i + 1] -= total_offset;
+		subject.convertedText.erase(subject.convertedText.begin() + subject.RenderEffectIndexes[i], subject.convertedText.begin() + subject.RenderEffectIndexes[i] + metaText[i].length());
 	}
+	if (subject.RenderEffectIndexes.size() > 0)
+		subject.convertedText.erase(subject.convertedText.begin() + subject.RenderEffectIndexes.back(), subject.convertedText.begin() + subject.RenderEffectIndexes.back() + metaText.back().length());
 }
 
-std::string TextPrinter::extractMetaText(FString text, std::vector<unsigned int> metaTextStartIndexes, std::vector<unsigned int> metaTextCloseIndexes)
+void TextPrinter::extractMetaText(FString text, std::vector<unsigned int> metaTextStartIndexes, std::vector<unsigned int> metaTextCloseIndexes)
 {
 	std::vector<std::string> metaText;
 	for (unsigned int i = 0; i < metaTextStartIndexes.size(); i++)
@@ -307,9 +423,19 @@ std::string TextPrinter::extractMetaText(FString text, std::vector<unsigned int>
 		}
 	}
 	correctRenderEffectIndexes(metaText);
-	for (unsigned int i = 0; i < metaText.size(); i++)
-		text = text.replace(metaText[i], "", false, false);
-	if (!unescapedBackslashCheck(&text))
+	if (!unescapedBackslashCheck(FString(subjectTextToSimpleString())))
 		throw "Error: Cannot render following text " + text.toStdString() + " because it contains unescaped backslashes (\\) in illegal places.";
-	return text.toStdString();
+}
+
+std::string TextPrinter::subjectTextToSimpleString()
+{
+	std::string text = "";
+	for (Uint16 index : subject.convertedText)
+	{
+		if (index < 128)
+			text += char(index);
+		else
+			text += "O";
+	}
+	return text;
 }
