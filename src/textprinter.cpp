@@ -257,16 +257,20 @@ Uint16 fourByteChar(unsigned char* bytes)
 {
 	Uint16 result = 0;
 	int bigPictureValue = int(bytes[0]) - 240;
-	for (double n = 2.0; bigPictureValue >= pow(2.0, n); n--)
+	for (double n = 2.0; bigPictureValue > 0; n--)
 	{
+		if (bigPictureValue < pow(2.0, n))
+			continue;
 		result += pow(2.0, n + 18.0);
 		bigPictureValue -= pow (2.0, n);
 	}
 	for (unsigned int i = 1; i < 4; i++)
 	{
 		bigPictureValue = int(bytes[i]) - 128;
-		for (double n = 5.0; bigPictureValue >= pow(2.0, n); n--)
+		for (double n = 5.0; bigPictureValue > 0; n--)
 		{
+			if (bigPictureValue < pow(2.0, n))
+				continue;
 			result += pow(2.0, n + ((3 - i) * 6));
 			bigPictureValue -= pow (2.0, n);
 		}
@@ -278,16 +282,20 @@ Uint16 threeByteChar(unsigned char* bytes)
 {
 	Uint16 result = 0;
 	int bigPictureValue = int(bytes[0]) - 224;
-	for (double n = 3.0; bigPictureValue >= pow(2.0, n); n--)
+	for (double n = 3.0; bigPictureValue > 0; n--)
 	{
+		if (bigPictureValue < pow(2.0, n))
+			continue;
 		result += pow(2.0, n + 12.0);
 		bigPictureValue -= pow (2.0, n);
 	}
 	for (unsigned int i = 1; i < 3; i++)
 	{
 		bigPictureValue = int(bytes[i]) - 128;
-		for (double n = 5.0; bigPictureValue >= pow(2.0, n); n--)
+		for (double n = 5.0; bigPictureValue > 0; n--)
 		{
+			if (bigPictureValue < pow(2.0, n))
+				continue;
 			result += pow(2.0, n + ((2 - i) * 6));
 			bigPictureValue -= pow (2.0, n);
 		}
@@ -299,14 +307,18 @@ Uint16 twoByteChar(unsigned char* bytes)
 {
 	Uint16 result = 0;
 	int bigPictureValue = int(bytes[0]) - 192;
-	for (double n = 4.0; bigPictureValue >= pow(2.0, n); n--)
+	for (double n = 4.0; bigPictureValue > 0; n--)
 	{
+		if (bigPictureValue < pow(2.0, n))
+			continue;
 		result += pow(2.0, n + 6.0);
 		bigPictureValue -= pow (2.0, n);
 	}
 	bigPictureValue = int(bytes[1]) - 128;
-	for (double n = 5.0; bigPictureValue >= pow(2.0, n); n--)
+	for (double n = 5.0; bigPictureValue > 0; n--)
 	{
+		if (bigPictureValue < pow(2.0, n))
+			continue;
 		result += pow(2.0, n);
 		bigPictureValue -= pow (2.0, n);
 	}
@@ -383,7 +395,7 @@ bool TextPrinter::unescapedBackslashCheck(FString text)
 		else if(next == 'n')
 		{
 			text = text.replace("\\n", "\n");
-			subject.convertedText.erase(subject.convertedText.begin() + startIndex, subject.convertedText.begin() + startIndex + 1);
+			subject.convertedText.erase(subject.convertedText.begin() + startIndex, subject.convertedText.begin() + startIndex + 2);
 			subject.convertedText.insert(subject.convertedText.begin() + startIndex, 10);
 		}
 		else
