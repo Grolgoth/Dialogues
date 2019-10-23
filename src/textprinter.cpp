@@ -378,6 +378,13 @@ void TextPrinter::parse()
 	extractMetaText(textStr, metaTextStartIndexes, metaTextCloseIndexes);
 }
 
+void TextPrinter::shiftRenderIndexes(int requisite, int amount)
+{
+	for (unsigned int i = 0; i < subject.RenderEffectIndexes.size(); i++)
+		if (subject.RenderEffectIndexes[i] >= unsigned(requisite))
+			subject.RenderEffectIndexes[i] += amount;
+}
+
 bool TextPrinter::unescapedBackslashCheck(FString text)
 {
 	int startIndex = 0;
@@ -394,12 +401,13 @@ bool TextPrinter::unescapedBackslashCheck(FString text)
 		}
 		else if(next == 'n')
 		{
-			text = text.replace("\\n", "\n");
+			text = text.replace("\\n", "\n", true, false);
 			subject.convertedText.erase(subject.convertedText.begin() + startIndex, subject.convertedText.begin() + startIndex + 2);
 			subject.convertedText.insert(subject.convertedText.begin() + startIndex, 10);
 		}
 		else
 			return false;
+		shiftRenderIndexes(startIndex, -1);
 		startIndex ++;
 	}
 	return true;

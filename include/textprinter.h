@@ -70,6 +70,7 @@ class TextPrinter
 		void setColor(SDL_Surface* target, SDL_Color color);
 		void correctRenderEffectIndexes(std::vector<std::string> metaTexts);
 		void extractMetaText(FString text, std::vector<unsigned int> metaTextStartIndexes, std::vector<unsigned int> metaTextCloseIndexes);
+		void shiftRenderIndexes(int requisite, int amount);
 		void parse();
 		std::string subjectTextToSimpleString();
 };
