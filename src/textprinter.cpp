@@ -260,17 +260,22 @@ std::string TextPrinter::parse(std::string text)
 	return extractMetaText(textStr, metaTextStartIndexes, metaTextCloseIndexes);
 }
 
-static bool unescapedBackslashCheck(FString text)
+static bool unescapedBackslashCheck(FString* text)
 {
-	while (text.contains("\\"))
+	int startIndex = 0;
+	while (text->indexOf("\\", true, startIndex) > -1)
 	{
-		std::vector<FString> split = text.split("\\");
-		if (split.size() != 2 || !split[1].startsWith("\\"))
+		startIndex = text->indexOf("\\", true, startIndex);
+		if (unsigned(startIndex + 1) == text->length())
 			return false;
-		unsigned int startIndex = text.indexOf("\\", true, 0, 2);
-		if (startIndex + 1 == text.length())
-			return true;
-		text = text.substring(startIndex + 1);
+		char next = text->charAt(startIndex + 1);
+		if (next == '\\')
+			*text = text->replace("\\\\", "\\", true, false);
+		else if(next == 'n')
+			*text = text->replace("\\n", "\n");
+		else
+			return false;
+		startIndex ++;
 	}
 	return true;
 }
@@ -304,7 +309,7 @@ std::string TextPrinter::extractMetaText(FString text, std::vector<unsigned int>
 	correctRenderEffectIndexes(metaText);
 	for (unsigned int i = 0; i < metaText.size(); i++)
 		text = text.replace(metaText[i], "", false, false);
-	if (!unescapedBackslashCheck(text))
+	if (!unescapedBackslashCheck(&text))
 		throw "Error: Cannot render following text " + text.toStdString() + " because it contains unescaped backslashes (\\) in illegal places.";
 	return text.toStdString();
 }
