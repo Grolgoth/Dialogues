@@ -4,8 +4,9 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <math.h>
+#include <SDL_mixer.h>
 
-TextPrinter::TextPrinter(File font, unsigned int font_px) : font(font), font_px(font_px), textOffset(font_px / 2), characters(true)
+TextPrinter::TextPrinter(File font, unsigned int font_px, Mix_Chunk* sound) : font(font), font_px(font_px), sound(sound), textOffset(font_px / 2), characters(true)
 {
 	if (!TTF_WasInit())
 		throw "Can't create TextPrinter object. TTF library was not initialized. Call TTF_Init() first.";
@@ -66,6 +67,18 @@ void TextPrinter::setCurrentFPC(unsigned int fpc)
 	subject.currentFPC = fpc;
 }
 
+void TextPrinter::finish()
+{
+	if (subject.currentPos >= subject.convertedText.size())
+		return;
+	while (subject.currentPos < subject.convertedText.size())
+	{
+		updateRenderSettings();
+		printNext();
+		updateActiveRenderEffects();
+	}
+}
+
 SDL_Surface* TextPrinter::getPrinted()
 {
 	updateActiveRenderEffects();
@@ -74,6 +87,9 @@ SDL_Surface* TextPrinter::getPrinted()
 		do
 		{
 			updateRenderSettings();
+			if (sound != nullptr && subject.currentFPC != 0 && subject.framesSinceLastPrint == 0)
+				if (!Mix_Playing(1))
+					Mix_PlayChannel(1, sound, 0);
 			if (subject.framesSinceLastPrint == 0)
 				printNext();
 			if (++subject.framesSinceLastPrint >= subject.currentFPC)
@@ -81,6 +97,24 @@ SDL_Surface* TextPrinter::getPrinted()
 		} while(subject.currentFPC == 0 && subject.currentPos < subject.convertedText.size());
 		if (finished())
 			updateRenderSettings();
+		if (sound != nullptr && subject.currentFPC == 0)
+			Mix_PlayChannel(1, sound, 0);
+	}
+	return subject.currentState;
+}
+
+SDL_Surface* TextPrinter::printCharacters(unsigned int amount)
+{
+	if (subject.currentPos < subject.convertedText.size() && amount > 0)
+	{
+		do
+		{
+			updateActiveRenderEffects();
+			updateRenderSettings();
+			printNext();
+		} while (--amount > 0 && subject.currentPos < subject.convertedText.size());
+		if (sound != nullptr)
+			Mix_PlayChannel(1, sound, 0);
 	}
 	return subject.currentState;
 }
@@ -193,6 +227,15 @@ void TextPrinter::startNewText(std::string text, unsigned int boxW, unsigned int
 	subject.currentState = createTransparentSurface(boxW, boxH);
 	subject.speed = effectSpeed >= 3 ? 3 : effectSpeed;
 
+	unsigned char* textp = U8StringToCharArray(text);
+	checkText(textp, text.length());
+	delete[] textp;
+}
+
+void TextPrinter::appendText(std::string text)
+{
+	if (subject.convertedText.size() <= 0)
+		throw "Can't append text because there is none.";
 	unsigned char* textp = U8StringToCharArray(text);
 	checkText(textp, text.length());
 	delete[] textp;

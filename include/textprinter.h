@@ -7,10 +7,12 @@
 #include <vector.h>
 #include <map>
 
+class Mix_Chunk;
+
 class TextPrinter
 {
 	public:
-		TextPrinter(File font, unsigned int font_px);
+		TextPrinter(File font, unsigned int font_px, Mix_Chunk* sound = nullptr);
 		~TextPrinter();
 
 		/**
@@ -18,8 +20,12 @@ class TextPrinter
 		see Dialogues readme.txt to see options and syntax.
 		*/
 		void startNewText(std::string text, unsigned int boxW, unsigned int boxH, unsigned int effectSpeed);
+		void appendText(std::string text);
 		void setCurrentFPC(unsigned int fpc);
+		void finish();
 		SDL_Surface* getPrinted();
+		SDL_Surface* printCharacters(unsigned int amount);
+		inline SDL_Surface* getPrintedPure() {return subject.currentState;}
 		inline bool finished() {return subject.currentPos == subject.convertedText.size();}
 		inline unsigned int getNumCharsPrinted() {return subject.currentPos;}
 
@@ -46,6 +52,7 @@ class TextPrinter
 		File font;
 		inline bool inRenderEffectIndexes(int index){return Vector<unsigned int>::fromStdVector(subject.RenderEffectIndexes).contains(index);}
 		int font_px;
+		Mix_Chunk* sound = nullptr;
 		int text_w = 0;
 		int text_h = 0;
 		int textOffset = 0;
