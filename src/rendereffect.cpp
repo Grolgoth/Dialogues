@@ -64,6 +64,8 @@ bool RenderEffect::isValidMetaText(FString metaText)
 		type = Type::SPIN;
     else if (metaText.toStdString() == "SPIN2")
         type = Type::SPIN2;
+	else if (metaText.toStdString() == "SILENT")
+		type = Type::SILENT;
 	else if (metaText.startsWith("FPC", false) && metaText.toStdString().length() > 4 && metaText.charAt(3) == '=' && metaText.substring(4).toStdString().length() < 7)
 	{
 		if(metaText.substring(4).allDigits())

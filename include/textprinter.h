@@ -53,6 +53,7 @@ class TextPrinter
 		inline bool inRenderEffectIndexes(int index){return Vector<unsigned int>::fromStdVector(subject.RenderEffectIndexes).contains(index);}
 		int font_px;
 		Mix_Chunk* sound = nullptr;
+		bool mute = false;
 		int text_w = 0;
 		int text_h = 0;
 		int textOffset = 0;

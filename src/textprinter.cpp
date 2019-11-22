@@ -87,7 +87,7 @@ SDL_Surface* TextPrinter::getPrinted()
 		do
 		{
 			updateRenderSettings();
-			if (sound != nullptr && subject.currentFPC != 0 && subject.framesSinceLastPrint == 0)
+			if (sound != nullptr && subject.currentFPC != 0 && subject.framesSinceLastPrint == 0 && subject.convertedText[subject.currentPos] != 10 && !mute)
 				if (!Mix_Playing(1))
 					Mix_PlayChannel(1, sound, 0);
 			if (subject.framesSinceLastPrint == 0)
@@ -275,6 +275,8 @@ void TextPrinter::processRenderEffect(RenderEffect effect, int index)
 		subject.currentFPC = effect.getFpcValue();
 	else if (effect.getType() == RenderEffect::COLOR)
 		subject.currentColor = effect.getColor();
+	else if (effect.getType() == RenderEffect::SILENT)
+		mute = !mute;
 	else
 	{
 		subject.indexCurrentRenderEffect = index;
