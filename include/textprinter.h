@@ -25,9 +25,11 @@ class TextPrinter
 		void finish();
 		SDL_Surface* getPrinted();
 		SDL_Surface* printCharacters(unsigned int amount);
+		inline unsigned int getTextLength() {return subject.convertedText.size();}
 		inline SDL_Surface* getPrintedPure() {return subject.currentState;}
 		inline bool finished() {return subject.currentPos == subject.convertedText.size();}
 		inline unsigned int getNumCharsPrinted() {return subject.currentPos;}
+		inline int getNumCharsConsideringFrameRate() {return subject.numCharsConsideringFrameRate;}
 
 	private:
 		TextPrinter(const TextPrinter& other);
@@ -47,6 +49,7 @@ class TextPrinter
 			SDL_Color currentColor;
 			int indexCurrentRenderEffect = -1;
 			unsigned int currentFPC = 5;
+			unsigned int numCharsConsideringFrameRate = 0;
 			int speed = 1;
 		};
 		File font;
@@ -80,6 +83,7 @@ class TextPrinter
 		void extractMetaText(FString text, std::vector<unsigned int> metaTextStartIndexes, std::vector<unsigned int> metaTextCloseIndexes);
 		void shiftRenderIndexes(int requisite, int amount);
 		void parse();
+		void calcNumCharsConsideringFrameRate();
 		std::string subjectTextToSimpleString();
 };
 

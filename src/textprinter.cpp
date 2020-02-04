@@ -230,6 +230,7 @@ void TextPrinter::startNewText(std::string text, unsigned int boxW, unsigned int
 	unsigned char* textp = U8StringToCharArray(text);
 	checkText(textp, text.length());
 	delete[] textp;
+	calcNumCharsConsideringFrameRate();
 }
 
 void TextPrinter::appendText(std::string text)
@@ -490,6 +491,28 @@ void TextPrinter::extractMetaText(FString text, std::vector<unsigned int> metaTe
 	correctRenderEffectIndexes(metaText);
 	if (!unescapedBackslashCheck(FString(subjectTextToSimpleString())))
 		throw "Error: Cannot render following text " + text.toStdString() + " because it contains unescaped backslashes (\\) in illegal places.";
+}
+
+void TextPrinter::calcNumCharsConsideringFrameRate()
+{
+	int currentFPC = 5;
+	for (unsigned int i = 0; i < subject.RenderEffectIndexes.size(); i++)
+	{
+		int indexPrevious = i == 0 ? 0 : subject.RenderEffectIndexes[i - 1];
+		if (currentFPC > 0)
+			subject.numCharsConsideringFrameRate += currentFPC * (subject.RenderEffectIndexes[i] - indexPrevious);
+		else if (currentFPC == 0)
+			subject.numCharsConsideringFrameRate -= subject.RenderEffectIndexes[i] - indexPrevious;
+		if (subject.renderEffects[i].type == RenderEffect::FPC)
+			currentFPC = subject.renderEffects[i].getFpcValue();
+		if (i == subject.RenderEffectIndexes.size() - 1)
+		{
+			if (currentFPC > 0)
+				subject.numCharsConsideringFrameRate += currentFPC * (subject.convertedText.size() - subject.RenderEffectIndexes[i]);
+			else if (currentFPC == 0)
+				subject.numCharsConsideringFrameRate -= (subject.convertedText.size() - subject.RenderEffectIndexes[i]);
+		}
+	}
 }
 
 std::string TextPrinter::subjectTextToSimpleString()
