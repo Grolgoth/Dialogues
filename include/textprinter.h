@@ -30,6 +30,7 @@ class TextPrinter
 		inline bool finished() {return subject.currentPos == subject.convertedText.size();}
 		inline unsigned int getNumCharsPrinted() {return subject.currentPos;}
 		inline int getNumCharsConsideringFrameRate() {return subject.numCharsConsideringFrameRate;}
+		inline int getCurrentFPC() {return subject.currentFPC;}
 
 	private:
 		TextPrinter(const TextPrinter& other);

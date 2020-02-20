@@ -87,18 +87,17 @@ SDL_Surface* TextPrinter::getPrinted()
 		do
 		{
 			updateRenderSettings();
+			if (++subject.framesSinceLastPrint >= subject.currentFPC)
+			{
+				subject.framesSinceLastPrint = 0;
+				printNext();
+			}
 			if (sound != nullptr && subject.currentFPC != 0 && subject.framesSinceLastPrint == 0 && subject.convertedText[subject.currentPos] != 10 && !mute)
 				if (!Mix_Playing(1))
 					Mix_PlayChannel(1, sound, 0);
-			if (subject.framesSinceLastPrint == 0)
-				printNext();
-			if (++subject.framesSinceLastPrint >= subject.currentFPC)
-				subject.framesSinceLastPrint = 0;
 		} while(subject.currentFPC == 0 && subject.currentPos < subject.convertedText.size());
 		if (finished())
 			updateRenderSettings();
-		if (sound != nullptr && subject.currentFPC == 0)
-			Mix_PlayChannel(1, sound, 0);
 	}
 	return subject.currentState;
 }
@@ -107,14 +106,22 @@ SDL_Surface* TextPrinter::printCharacters(unsigned int amount)
 {
 	if (subject.currentPos < subject.convertedText.size() && amount > 0)
 	{
+		bool play = false;
 		do
 		{
-			updateActiveRenderEffects();
 			updateRenderSettings();
-			printNext();
+			if (++subject.framesSinceLastPrint >= subject.currentFPC)
+			{
+				subject.framesSinceLastPrint = 0;
+				if (!play && subject.convertedText[subject.currentPos] != 10)
+					play = true;
+				updateActiveRenderEffects();
+				printNext();
+			}
 		} while (--amount > 0 && subject.currentPos < subject.convertedText.size());
-		if (sound != nullptr)
-			Mix_PlayChannel(1, sound, 0);
+		if (sound != nullptr && play && !mute)
+			if (!Mix_Playing(1))
+				Mix_PlayChannel(1, sound, 0);
 	}
 	return subject.currentState;
 }
@@ -501,17 +508,10 @@ void TextPrinter::calcNumCharsConsideringFrameRate()
 		int indexPrevious = i == 0 ? 0 : subject.RenderEffectIndexes[i - 1];
 		if (currentFPC > 0)
 			subject.numCharsConsideringFrameRate += currentFPC * (subject.RenderEffectIndexes[i] - indexPrevious);
-		else if (currentFPC == 0)
-			subject.numCharsConsideringFrameRate -= subject.RenderEffectIndexes[i] - indexPrevious;
 		if (subject.renderEffects[i].type == RenderEffect::FPC)
 			currentFPC = subject.renderEffects[i].getFpcValue();
-		if (i == subject.RenderEffectIndexes.size() - 1)
-		{
-			if (currentFPC > 0)
-				subject.numCharsConsideringFrameRate += currentFPC * (subject.convertedText.size() - subject.RenderEffectIndexes[i]);
-			else if (currentFPC == 0)
-				subject.numCharsConsideringFrameRate -= (subject.convertedText.size() - subject.RenderEffectIndexes[i]);
-		}
+		if (i == subject.RenderEffectIndexes.size() - 1 && currentFPC > 0)
+			subject.numCharsConsideringFrameRate += currentFPC * (subject.convertedText.size() - subject.RenderEffectIndexes[i]);
 	}
 }
 
