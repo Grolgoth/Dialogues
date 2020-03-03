@@ -25,8 +25,8 @@ class TextPrinter
 		void finish();
 		SDL_Surface* getPrinted();
 		SDL_Surface* printCharacters(unsigned int amount);
+		SDL_Surface* getPrintedPure(std::string entered = "");
 		inline unsigned int getTextLength() {return subject.convertedText.size();}
-		inline SDL_Surface* getPrintedPure() {return subject.currentState;}
 		inline bool finished() {return subject.currentPos == subject.convertedText.size();}
 		inline unsigned int getNumCharsPrinted() {return subject.currentPos;}
 		inline int getNumCharsConsideringFrameRate() {return subject.numCharsConsideringFrameRate;}

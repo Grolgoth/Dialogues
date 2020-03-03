@@ -102,6 +102,18 @@ SDL_Surface* TextPrinter::getPrinted()
 	return subject.currentState;
 }
 
+SDL_Surface* TextPrinter::getPrintedPure(std::string entered)
+{
+	if (entered != "")
+	{
+		appendText(entered);
+		finish();
+		subject.convertedText.erase(subject.convertedText.end() - entered.length(), subject.convertedText.end());
+		subject.xposOnSurface = textOffset;
+	}
+	return subject.currentState;
+}
+
 SDL_Surface* TextPrinter::printCharacters(unsigned int amount)
 {
 	if (subject.currentPos < subject.convertedText.size() && amount > 0)
@@ -233,6 +245,7 @@ void TextPrinter::startNewText(std::string text, unsigned int boxW, unsigned int
 	subject.boxH = boxH;
 	subject.currentState = createTransparentSurface(boxW, boxH);
 	subject.speed = effectSpeed >= 3 ? 3 : effectSpeed;
+	mute = false;
 
 	unsigned char* textp = U8StringToCharArray(text);
 	checkText(textp, text.length());
@@ -477,6 +490,12 @@ void TextPrinter::correctRenderEffectIndexes(std::vector<std::string> metaText)
 	}
 	if (subject.RenderEffectIndexes.size() > 0)
 		subject.convertedText.erase(subject.convertedText.begin() + subject.RenderEffectIndexes.back(), subject.convertedText.begin() + subject.RenderEffectIndexes.back() + metaText.back().length());
+	for (unsigned int i = 0; i < subject.renderEffects.size(); i ++)
+	{
+		if (subject.renderEffects[i].type == RenderEffect::FPC || subject.renderEffects[i].type == RenderEffect::SILENT)
+			if (subject.RenderEffectIndexes[i] != 0)
+				subject.RenderEffectIndexes[i]++;
+	}
 }
 
 void TextPrinter::extractMetaText(FString text, std::vector<unsigned int> metaTextStartIndexes, std::vector<unsigned int> metaTextCloseIndexes)
