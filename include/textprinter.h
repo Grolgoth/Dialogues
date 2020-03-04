@@ -23,6 +23,7 @@ class TextPrinter
 		void appendText(std::string text);
 		void setCurrentFPC(unsigned int fpc);
 		void finish();
+		void cleanEntered();
 		SDL_Surface* getPrinted();
 		SDL_Surface* printCharacters(unsigned int amount);
 		SDL_Surface* getPrintedPure(std::string entered = "");

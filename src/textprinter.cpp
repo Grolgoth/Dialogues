@@ -110,8 +110,15 @@ SDL_Surface* TextPrinter::getPrintedPure(std::string entered)
 		finish();
 		subject.convertedText.erase(subject.convertedText.end() - entered.length(), subject.convertedText.end());
 		subject.xposOnSurface = textOffset;
+		subject.currentPos = subject.convertedText.size();
 	}
 	return subject.currentState;
+}
+
+void TextPrinter::cleanEntered()
+{
+	SDL_Rect r = {int(subject.xposOnSurface), int(subject.yposOnSurface), int(subject.boxW - subject.xposOnSurface), int(subject.boxH - subject.yposOnSurface)};
+	SDL_FillRect(subject.currentState, &r, SDL_MapRGBA(subject.currentState->format, 0, 0, 0, 0));
 }
 
 SDL_Surface* TextPrinter::printCharacters(unsigned int amount)
