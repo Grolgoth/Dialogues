@@ -50,7 +50,7 @@ class TextPrinter
 			std::vector<RenderEffect> renderEffects;
 			SDL_Color currentColor;
 			int indexCurrentRenderEffect = -1;
-			unsigned int currentFPC = 5;
+			unsigned int currentFPC = 1;
 			unsigned int numCharsConsideringFrameRate = 0;
 			int speed = 1;
 		};
