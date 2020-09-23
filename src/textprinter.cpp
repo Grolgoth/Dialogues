@@ -67,6 +67,11 @@ void TextPrinter::setCurrentFPC(unsigned int fpc)
 	subject.currentFPC = fpc;
 }
 
+void TextPrinter::setExternalEffectInt(int* external)
+{
+	externalEffectInt = external;
+}
+
 void TextPrinter::finish()
 {
 	if (subject.currentPos >= subject.convertedText.size())
@@ -305,6 +310,8 @@ void TextPrinter::processRenderEffect(RenderEffect effect, int index)
 		subject.currentColor = effect.getColor();
 	else if (effect.getType() == RenderEffect::SILENT)
 		mute = !mute;
+	else if (effect.getType() == RenderEffect::EXTERNAL && externalEffectInt != nullptr)
+		*externalEffectInt = effect.getFpcValue();
 	else
 	{
 		subject.indexCurrentRenderEffect = index;

@@ -22,7 +22,8 @@ class RenderEffect
 			SPIN2,
 			COLOR,
 			SILENT,
-			FPC
+			FPC,
+			EXTERNAL
 		};
 		enum State
 		{

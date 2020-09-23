@@ -22,6 +22,7 @@ class TextPrinter
 		void startNewText(std::string text, unsigned int boxW, unsigned int boxH, unsigned int effectSpeed);
 		void appendText(std::string text);
 		void setCurrentFPC(unsigned int fpc);
+		void setExternalEffectInt(int* external);
 		void finish();
 		void cleanEntered();
 		SDL_Surface* getPrinted();
@@ -62,6 +63,7 @@ class TextPrinter
 		int text_w = 0;
 		int text_h = 0;
 		int textOffset = 0;
+		int* externalEffectInt = nullptr; //Can be used to change different things such as npc portrait index or whatever else you want
 		Vector<Uint16> characters;
 		std::vector<unsigned int> characterWidths;
 		Vector<SDL_Surface*> glyphs;

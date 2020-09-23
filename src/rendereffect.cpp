@@ -66,6 +66,19 @@ bool RenderEffect::isValidMetaText(FString metaText)
         type = Type::SPIN2;
 	else if (metaText.toStdString() == "SILENT")
 		type = Type::SILENT;
+	else if (metaText.startsWith("EXTERNAL:", false) && metaText.toStdString().length() > 9 && metaText.substring(9).toStdString().length() < 7)
+	{
+		if (metaText.substring(9).allDigits())
+		{
+			type = Type::EXTERNAL;
+			fpcValue = (unsigned)metaText.substring(9).toInt(); //I'm abusing fpcValue here because it's not used. More neat would be another int mem var named externalInt.
+		}
+		else
+		{
+			UnsupportedTypeError error;
+			throw error;
+		}
+	}
 	else if (metaText.startsWith("FPC", false) && metaText.toStdString().length() > 4 && metaText.charAt(3) == '=' && metaText.substring(4).toStdString().length() < 7)
 	{
 		if(metaText.substring(4).allDigits())
