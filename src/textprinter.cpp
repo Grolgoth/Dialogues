@@ -24,6 +24,8 @@ TextPrinter::~TextPrinter()
 		SDL_FreeSurface(glyph);
 	if (subject.currentState != nullptr)
 		SDL_FreeSurface(subject.currentState);
+	if (sound != nullptr)
+		Mix_FreeChunk(sound);
 }
 
 void TextPrinter::integrityCheck()
