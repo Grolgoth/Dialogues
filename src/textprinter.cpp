@@ -452,12 +452,31 @@ void TextPrinter::checkText(unsigned char* text, unsigned int bytes)
 void TextPrinter::parse()
 {
 	FString textStr(subjectTextToSimpleString());
-	std::vector<unsigned int> metaTextStartIndexes = textStr.findAll("/\\\\<");
+	std::vector<unsigned int> metaTextStartIndexes = setMetaTextIndexes(textStr, true);
 	subject.RenderEffectIndexes = metaTextStartIndexes;
-	std::vector<unsigned int> metaTextCloseIndexes = textStr.findAll("/\\\\>");
-	if (metaTextCloseIndexes.size() != metaTextCloseIndexes.size())
+	std::vector<unsigned int> metaTextCloseIndexes = setMetaTextIndexes(textStr, false);
+	if (metaTextCloseIndexes.size() != metaTextStartIndexes.size())
 		throw "Error: Cannot render following text " + textStr.toStdString() + " because its meta-format is invalid.";
 	extractMetaText(textStr, metaTextStartIndexes, metaTextCloseIndexes);
+}
+
+std::vector<unsigned int> TextPrinter::setMetaTextIndexes(FString text, bool start)
+{
+	std::vector<unsigned int> result;
+	std::string textToSearch = start ? "\\<" : "\\>";
+	std::vector<unsigned int> metaTextStartIndexes = text.findAll(textToSearch);
+	for (unsigned int i = 0; i < metaTextStartIndexes.size(); i++)
+	{
+		if (metaTextStartIndexes[i] == 0)
+		{
+			result.push_back(i);
+			continue;
+		}
+		if (text.charAt(metaTextStartIndexes[i] - 1) == '\\')
+			continue;
+		result.push_back(metaTextStartIndexes[i]);
+	}
+	return result;
 }
 
 void TextPrinter::shiftRenderIndexes(int requisite, int amount)
@@ -519,11 +538,11 @@ void TextPrinter::extractMetaText(FString text, std::vector<unsigned int> metaTe
 	std::vector<std::string> metaText;
 	for (unsigned int i = 0; i < metaTextStartIndexes.size(); i++)
 	{
-		FString sub = text.substring(metaTextStartIndexes[i] + 4, metaTextCloseIndexes[i]);
+		FString sub = text.substring(metaTextStartIndexes[i] + 2, metaTextCloseIndexes[i]);
 		try
 		{
 			subject.renderEffects.push_back(RenderEffect(sub, subject.currentState, font_px, subject.speed));
-			metaText.push_back(text.substring(metaTextStartIndexes[i], metaTextCloseIndexes[i] + 4).toStdString());
+			metaText.push_back(text.substring(metaTextStartIndexes[i], metaTextCloseIndexes[i] + 2).toStdString());
 		}
 		catch (RenderEffect::UnsupportedTypeError error)
 		{

@@ -89,6 +89,7 @@ class TextPrinter
 		void parse();
 		void calcNumCharsConsideringFrameRate();
 		std::string subjectTextToSimpleString();
+		std::vector<unsigned int> setMetaTextIndexes(FString text, bool start);
 };
 
 #endif // TEXTPRINTER_H
