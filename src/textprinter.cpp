@@ -56,7 +56,7 @@ void TextPrinter::loadFaceFromFile()
 		TTF_GlyphMetrics(fontstruct, charcode, nullptr, &maxx, nullptr, &maxy, nullptr);
 		characterWidths.push_back(maxx);
 		if (charcode == 69)
-			text_w = maxx;
+			spaceCharExtraW = maxx;
 		text_h = 1.5 * (double)font_px;
 		glyphs.push_back(TTF_RenderGlyph_Solid(fontstruct, charcode, defaultColor));
 		charcode = FT_Get_Next_Char(TTF_GetFontFace(fontstruct), charcode, &gindex );
@@ -120,6 +120,43 @@ SDL_Surface* TextPrinter::getPrintedPure(std::string entered)
 		subject.currentPos = subject.convertedText.size();
 	}
 	return subject.currentState;
+}
+
+void TextPrinter::removeLastChar()
+{
+	if (subject.convertedText.size() > 0)
+	{
+		if (subject.convertedText.back() == 10)
+		{
+			subject.convertedText.pop_back();
+			if (subject.yposOnSurface >= (textOffset + text_h))
+				subject.yposOnSurface -= text_h;
+			subject.xposOnSurface = subject.boxW - subject.lineOffsetsToBoxW.back();
+			subject.lineOffsetsToBoxW.pop_back();
+			subject.currentPos --;
+			return;
+		}
+		int characterIndex = characters.getIndex(subject.convertedText.back());
+		int lastCharWidth = 0;
+
+		lastCharWidth = characterWidths[characterIndex];
+		if (subject.convertedText.back() == 32)
+			subject.xposOnSurface -= spaceCharExtraW;
+
+		subject.currentPos --;
+		subject.convertedText.pop_back();
+		subject.xposOnSurface -= lastCharWidth;
+
+		SDL_Rect r = {int(subject.xposOnSurface), int(subject.yposOnSurface), lastCharWidth, text_h};
+		SDL_FillRect(subject.currentState, &r, SDL_MapRGBA(subject.currentState->format, 0, 0, 0, 0));
+
+		if (subject.xposOnSurface == textOffset && subject.convertedText.size() > 0 && subject.convertedText.back() != 10)
+		{
+			subject.yposOnSurface -= text_h;
+			subject.xposOnSurface = subject.boxW - subject.lineOffsetsToBoxW.back();
+			subject.lineOffsetsToBoxW.pop_back();
+		}
+	}
 }
 
 void TextPrinter::cleanEntered()
@@ -208,6 +245,7 @@ void TextPrinter::printNext()
 		throw "Fatal Error: character could not be found even after the check if all characters were present passed successfully. (For character with UTF8 decimal value " + FString::fromInt(character).toStdString() + ").";
 	if(subject.xposOnSurface != (unsigned)textOffset && subject.xposOnSurface + characterWidths[characterIndex] >= subject.boxW)
 	{
+		subject.lineOffsetsToBoxW.push_back(subject.boxW - subject.xposOnSurface);
 		subject.xposOnSurface = textOffset;
 		subject.yposOnSurface += text_h;
 		if (subject.renderEffects.size() > 0 && subject.renderEffects[subject.indexCurrentRenderEffect].state == RenderEffect::OPEN && !inRenderEffectIndexes(subject.currentPos))
@@ -223,12 +261,13 @@ void TextPrinter::printNext()
 	printCharacter(glyph, characterIndex);
 	// space
 	if (character == 32)
-		subject.xposOnSurface += text_w;
+		subject.xposOnSurface += spaceCharExtraW;
 	subject.currentPos ++;
 }
 
 void TextPrinter::handleNewLine()
 {
+	subject.lineOffsetsToBoxW.push_back(subject.boxW - subject.xposOnSurface);
 	subject.xposOnSurface = textOffset;
 	subject.yposOnSurface += text_h;
 	subject.currentPos ++;
@@ -269,8 +308,6 @@ void TextPrinter::startNewText(std::string text, unsigned int boxW, unsigned int
 
 void TextPrinter::appendText(std::string text)
 {
-	if (subject.convertedText.size() <= 0)
-		throw "Can't append text because there is none.";
 	unsigned char* textp = U8StringToCharArray(text);
 	checkText(textp, text.length());
 	delete[] textp;
