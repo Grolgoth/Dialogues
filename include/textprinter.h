@@ -30,6 +30,7 @@ class TextPrinter
 		SDL_Surface* printCharacters(unsigned int amount);
 		SDL_Surface* getPrintedPure(std::string entered = ""); // this function seems bad and unnecessary
 		inline unsigned int getTextLength() {return subject.convertedText.size();}
+		inline unsigned int getPrintedTextW() {return subject.xposOnSurface;}
 		inline bool finished() {return subject.currentPos == subject.convertedText.size();}
 		inline unsigned int getNumCharsPrinted() {return subject.currentPos;}
 		inline int getNumCharsConsideringFrameRate() {return subject.numCharsConsideringFrameRate;}
