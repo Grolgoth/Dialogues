@@ -35,6 +35,8 @@ class TextPrinter
 		inline unsigned int getNumCharsPrinted() {return subject.currentPos;}
 		inline int getNumCharsConsideringFrameRate() {return subject.numCharsConsideringFrameRate;}
 		inline int getCurrentFPC() {return subject.currentFPC;}
+		inline int getHighestChar() {return highestChar;}
+		inline int getFontSize() {return font_px;}
 
 	private:
 		TextPrinter(const TextPrinter& other);
@@ -65,6 +67,7 @@ class TextPrinter
 		bool mute = false;
 		int spaceCharExtraW = 0;
 		int text_h = 0;
+		int highestChar = 0;
 		int textOffset = 0;
 		int* externalEffectInt = nullptr; //Can be used to change different things such as npc portrait index or whatever else you want
 		Vector<Uint16> characters;
