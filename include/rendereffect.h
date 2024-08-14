@@ -44,6 +44,7 @@ class RenderEffect
 
 	private:
 		friend class TextPrinter;
+		friend class WordPrinter;
 		Type type = NONE;
 		State state = INACTIVE;
 		SDL_Color color;

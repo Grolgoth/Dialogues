@@ -276,7 +276,7 @@ void TextPrinter::handleNewLine()
 	subject.framesSinceLastPrint = 0;
 }
 
-unsigned char* U8StringToCharArray(std::string u8String)
+unsigned char* TextPrinter::U8StringToCharArray(std::string u8String)
 {
 	unsigned char* buffer = new unsigned char[u8String.length()];
 	int i = 0;

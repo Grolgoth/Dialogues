@@ -7,13 +7,13 @@
 #include <vector.h>
 #include <map>
 
-class Mix_Chunk;
+struct Mix_Chunk;
 
 class TextPrinter
 {
 	public:
 		TextPrinter(File font, unsigned int font_px, Mix_Chunk* sound = nullptr);
-		~TextPrinter();
+		virtual ~TextPrinter();
 
 		/**
 		text parameter can include instructions like colour, bouncy/wavy text etc.
@@ -38,7 +38,7 @@ class TextPrinter
 		inline int getHighestChar() {return highestChar;}
 		inline int getFontSize() {return font_px;}
 
-	private:
+	protected:
 		TextPrinter(const TextPrinter& other);
 
 		struct Subject
@@ -80,7 +80,7 @@ class TextPrinter
 		bool unescapedBackslashCheck(FString text);
 		void integrityCheck();
 		void loadFaceFromFile();
-		void printNext();
+		virtual void printNext();
 		void printCharacter(SDL_Surface* glyph, int characterIndex);
 		void handleNewLine();
 		void checkText(unsigned char* text, unsigned int bytes);
@@ -96,6 +96,7 @@ class TextPrinter
 		void calcNumCharsConsideringFrameRate();
 		std::string subjectTextToSimpleString();
 		std::vector<unsigned int> setMetaTextIndexes(FString text, bool start);
+		unsigned char* U8StringToCharArray(std::string u8String);
 };
 
 #endif // TEXTPRINTER_H
