@@ -11,10 +11,6 @@ WordPrinter::WordPrinter(File font, unsigned int font_px, Mix_Chunk* sound) : Te
 
 void WordPrinter::startNewText(std::string text, unsigned int boxW, unsigned int boxH, unsigned int effectSpeed, int number)
 {
-	currentWordIndex = -1;
-	newWord();
-	currentSurfaceNumber = number;
-
 	resetSubject();
 	subject.boxW = boxW;
 	subject.boxH = boxH;
@@ -22,13 +18,17 @@ void WordPrinter::startNewText(std::string text, unsigned int boxW, unsigned int
 	subject.speed = effectSpeed >= 3 ? 3 : effectSpeed;
 	mute = false;
 
+	currentWordIndex = -1;
+	newWord();
+	currentSurfaceNumber = number;
+
 	unsigned char* textp = U8StringToCharArray(text);
 	checkText(textp, text.length());
 	delete[] textp;
 	calcNumCharsConsideringFrameRate();
 }
 
-void WordPrinter::newWord(bool wasNewline)
+void WordPrinter::newWord(bool wasNewline, bool removeSpace, int spaceW)
 {
 	if (words.size() > 0)
 	{
@@ -40,6 +40,8 @@ void WordPrinter::newWord(bool wasNewline)
 	currentWordIndex++;
 	Word word;
 	word.x1 = subject.xposOnSurface;
+	if (removeSpace)
+		word.x1 += spaceCharExtraW + spaceW;
 	word.y1 = subject.yposOnSurface;
 	word.surfaceNumber = currentSurfaceNumber;
 	words.push_back(word);
@@ -68,7 +70,7 @@ std::string convertUint16ToUtf8(Uint16 value) {
 		std::cout << "ERROR! 4 byte utf-8 char don't know what to do with it! (in: wordPrinter::printNext())";
 		return "";
 	}
-    std::transform(utf8.begin(), utf8.end(), utf8.begin(), ::tolower);
+    std::transform(utf8.begin(), utf8.end(), utf8.begin(), ::tolower); //This does not work on multibyte chars in UTF8 string. It's possible to do, but I don't care for now.
     return utf8;
 }
 
@@ -104,10 +106,16 @@ void WordPrinter::printNext()
 	// space
 	if (character != 32)
 		words[currentWordIndex].id += convertUint16ToUtf8(character);
-	else
+	else if (subject.currentPos < subject.convertedText.size() - 1)
 	{
+		newWord(false, true, characterWidths[characterIndex]);
 		subject.xposOnSurface += spaceCharExtraW;
-		newWord();
 	}
 	subject.currentPos ++;
+
+	if (subject.currentPos >= subject.convertedText.size())
+	{
+		words[currentWordIndex].y2 = words[currentWordIndex].y1 + text_h;
+		words[currentWordIndex].x2 = subject.xposOnSurface;
+	}
 }

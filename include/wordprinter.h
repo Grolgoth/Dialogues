@@ -18,7 +18,7 @@ class WordPrinter : public TextPrinter
 
 	private:
 		void printNext();
-		void newWord(bool wasNewline = false);
+		void newWord(bool wasNewline = false, bool removeSpace = false, int spaceW = 0);
 		int currentWordIndex = -1;
 		int currentSurfaceNumber = 0;
 
