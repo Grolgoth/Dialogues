@@ -250,6 +250,7 @@ void TextPrinter::printNext()
 		subject.lineOffsetsToBoxW.push_back(subject.boxW - subject.xposOnSurface);
 		subject.xposOnSurface = textOffset;
 		subject.yposOnSurface += text_h;
+		subject.lines++;
 		if (subject.renderEffects.size() > 0 && subject.renderEffects[subject.indexCurrentRenderEffect].state == RenderEffect::OPEN && !inRenderEffectIndexes(subject.currentPos))
 		{
 			RenderEffect::Type previousType = subject.renderEffects[subject.indexCurrentRenderEffect].type;
@@ -274,6 +275,7 @@ void TextPrinter::handleNewLine()
 	subject.yposOnSurface += text_h;
 	subject.currentPos ++;
 	subject.framesSinceLastPrint = 0;
+	subject.lines++;
 }
 
 unsigned char* TextPrinter::U8StringToCharArray(std::string u8String)

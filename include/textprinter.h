@@ -37,6 +37,7 @@ class TextPrinter
 		inline int getCurrentFPC() {return subject.currentFPC;}
 		inline int getHighestChar() {return highestChar;}
 		inline int getFontSize() {return font_px;}
+		inline int getNumLines() {return subject.lines;}
 
 	protected:
 		TextPrinter(const TextPrinter& other);
@@ -59,6 +60,7 @@ class TextPrinter
 			unsigned int currentFPC = 1;
 			unsigned int numCharsConsideringFrameRate = 0;
 			int speed = 1;
+			int lines = 1;
 		};
 		File font;
 		inline bool inRenderEffectIndexes(int index){return Vector<unsigned int>::fromStdVector(subject.RenderEffectIndexes).contains(index);}
