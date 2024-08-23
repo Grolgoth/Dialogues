@@ -13,6 +13,7 @@ class WordPrinter : public TextPrinter
 
 		WordPrinter(File font, unsigned int font_px, Mix_Chunk* sound = nullptr);
 		inline std::vector<Word> getWords() {return words;}
+		std::vector<int> selectedWords;
 
 		void startNewText(std::string text, unsigned int boxW, unsigned int boxH, unsigned int effectSpeed, int number);
 

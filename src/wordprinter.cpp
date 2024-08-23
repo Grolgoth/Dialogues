@@ -1,4 +1,5 @@
 #include "wordprinter.h"
+#include <cctype>
 #include <custom_sdl_functions.h>
 #include <sdl_ttf_custom.h>
 #include <ft2build.h>
@@ -47,12 +48,15 @@ void WordPrinter::newWord(bool wasNewline, bool removeSpace, int spaceW)
 	words.push_back(word);
 }
 
-std::string convertUint16ToUtf8(Uint16 value) {
+std::string convertUint16ToUtf8(Uint16 value)
+{
     std::string utf8;
 
     if (value < 0x80)
 	{
         utf8 += value;
+        if (!std::isalpha(value))
+			return "";
     }
     else if (value < 0x800)
 	{
