@@ -6,7 +6,7 @@ Shake::Shake(int pointsize, int xstart, int w, int ystart, int h, int framerate)
 {
 	numSteps = 48;
 	direction = RandomNumberGenerator::randomInt(0, 3);
-	if (RandomNumberGenerator::randomInt(0, 1));
+	if (RandomNumberGenerator::randomInt(0, 1))
 		shakes = RandomNumberGenerator::randomInt(2, 4) * 6;
 }
 

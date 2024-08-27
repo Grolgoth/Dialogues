@@ -123,3 +123,15 @@ void WordPrinter::printNext()
 		words[currentWordIndex].x2 = subject.xposOnSurface;
 	}
 }
+
+void WordPrinter::clearWordsInIndicedSurface(int surface)
+{
+	for (int i = 0; i < words.size(); i++)
+	{
+		if (words[i].surfaceNumber == surface)
+		{
+			words.erase(words.begin() + i);
+			i--;
+		}
+	}
+}

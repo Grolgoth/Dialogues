@@ -17,7 +17,7 @@ class RenderEffectCore
 		bool ready;
 		int copies = 0;
 		virtual void next();
-		inline void setFramerate(int framerate) {this->framerate = framerate;}
+		inline void setFramerate(int argframerate) {framerate = argframerate;}
 };
 
 #endif // RENDEREFFECTCORE_H_INCLUDED
