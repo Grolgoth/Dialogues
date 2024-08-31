@@ -3,6 +3,7 @@
 #include <custom_sdl_functions.h>
 #include <sdl_ttf_custom.h>
 #include <ft2build.h>
+#include <algorithm>
 #include FT_FREETYPE_H
 
 WordPrinter::WordPrinter(File font, unsigned int font_px, Mix_Chunk* sound) : TextPrinter(font, font_px, sound)
@@ -20,8 +21,8 @@ void WordPrinter::startNewText(std::string text, unsigned int boxW, unsigned int
 	mute = false;
 
 	currentWordIndex = -1;
-	newWord();
 	currentSurfaceNumber = number;
+	newWord();
 
 	unsigned char* textp = U8StringToCharArray(text);
 	checkText(textp, text.length());
@@ -55,8 +56,6 @@ std::string convertUint16ToUtf8(Uint16 value)
     if (value < 0x80)
 	{
         utf8 += value;
-        if (!std::isalpha(value))
-			return "";
     }
     else if (value < 0x800)
 	{
@@ -121,6 +120,49 @@ void WordPrinter::printNext()
 	{
 		words[currentWordIndex].y2 = words[currentWordIndex].y1 + text_h;
 		words[currentWordIndex].x2 = subject.xposOnSurface;
+	}
+}
+
+void WordPrinter::trimWords(int surface)
+{
+	for (int i = 0; i < words.size(); i++)
+	{
+		if (words[i].surfaceNumber == surface)
+		{
+			for (int counter = 0; counter < 2; counter++)
+			{
+				char c = words[i].id[0]; //first time we check the first char
+				if (counter == 1)
+					c = words[i].id.back(); //second time we check the last char
+				if (!std::isalpha(c) && c != '-' && c != '\'') //subtract width from thw word's box if the character is not alpha or ' or -
+				{
+					Uint16 char16 = 0;
+					int characterIndex = 0;
+					int width = 0;
+					bool oneByteChar = true;
+					if (c > 0x00 && c <= 0x7F)
+						char16 = int(c);
+					if (char16 != 0) // one byte char
+					{
+						characterIndex = characters.getIndex(char16);
+						width = characterWidths[characterIndex];
+					}
+					else // multiple byte char; not a punctuation mark but actually part of the word. Leave it alone
+						continue;
+
+					if (counter == 0)
+					{
+						words[i].x1 += width; //first char needs to be removed so the box beginning gets a +
+						words[i].id.erase(0, 1);
+					}
+					else
+					{
+						words[i].x2 -= width; //last char needs to be removed so shrink the box width (x2 gets a -)
+						words[i].id.pop_back();
+					}
+				}
+			}
+		}
 	}
 }
 

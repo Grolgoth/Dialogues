@@ -17,6 +17,7 @@ class WordPrinter : public TextPrinter
 		inline int getCurrentSurfaceNumber() {return currentSurfaceNumber;}
 
 		void startNewText(std::string text, unsigned int boxW, unsigned int boxH, unsigned int effectSpeed, int number);
+		void trimWords(int surface);
 		void clearWordsInIndicedSurface(int surface);
 
 	private:

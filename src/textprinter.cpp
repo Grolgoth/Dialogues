@@ -450,44 +450,46 @@ Uint16 twoByteChar(unsigned char* bytes)
 
 void TextPrinter::checkText(unsigned char* text, unsigned int bytes)
 {
-	for (unsigned int i = 0; i < bytes; i++)
-	{
-		Uint16 result = 0;
-		if (int(text[i]) == 0)
-			break;
-		if (text[i] > 0x00 && text[i] <= 0x7F)
-			result = int(text[i]);
-		else if (text[i] >= 0xC0 && text[i] <= 0xDF)
+	try {
+		for (unsigned int i = 0; i < bytes; i++)
 		{
-			unsigned char refs[2] = {text[i], text[i + 1]};
-			result = twoByteChar(refs);
-			i++;
+			Uint16 result = 0;
+			if (int(text[i]) == 0)
+				break;
+			if (text[i] > 0x00 && text[i] <= 0x7F)
+				result = int(text[i]);
+			else if (text[i] >= 0xC0 && text[i] <= 0xDF)
+			{
+				unsigned char refs[2] = {text[i], text[i + 1]};
+				result = twoByteChar(refs);
+				i++;
+			}
+			else if (text[i] >= 0xE0 && text[i] <= 0xEF)
+			{
+				unsigned char refs[3] = {text[i], text[i + 1], text[i + 2]};
+				result = threeByteChar(refs);
+				i += 2;
+			}
+			else if (text[i] >= 0xF0 && text[i] <= 0xF7)
+			{
+				unsigned char refs[4] = {text[i], text[i + 1], text[i + 2], text[i + 3]};
+				result = fourByteChar(refs);
+				i += 3;
+			}
+			else
+				throw "Invalid UTF-8 encoding";
+			if (!characters.contains(result) && result != 10 && result != 13)
+			{
+				std::string textstring = "";
+				for (unsigned int i = 0; i < bytes; i++)
+					textstring += text[i];
+				std::cout << "Error: A certain character (" + FString::fromInt(result).toStdString() + ") was in this text string: " + textstring + " was not present in font " + font.getAbsolutePath() << " and will be omitted." << std::endl;
+			}
+			else
+				subject.convertedText.push_back(result);
 		}
-		else if (text[i] >= 0xE0 && text[i] <= 0xEF)
-		{
-			unsigned char refs[3] = {text[i], text[i + 1], text[i + 2]};
-			result = threeByteChar(refs);
-			i += 2;
-		}
-		else if (text[i] >= 0xF0 && text[i] <= 0xF7)
-		{
-			unsigned char refs[4] = {text[i], text[i + 1], text[i + 2], text[i + 3]};
-			result = fourByteChar(refs);
-			i += 3;
-		}
-		else
-			throw "Invalid UTF-8 encoding";
-		if (!characters.contains(result) && result != 10 && result != 13)
-		{
-			std::string textstring = "";
-			for (unsigned int i = 0; i < bytes; i++)
-				textstring += text[i];
-			std::cout << "Error: A certain character (" + FString::fromInt(result).toStdString() + ") was in this text string: " + textstring + " was not present in font " + font.getAbsolutePath() << " and will be omitted." << std::endl;
-		}
-		else
-			subject.convertedText.push_back(result);
-	}
-	parse();
+		parse();
+	} catch (const std::string& e) { std::cout << e << std::endl;}
 }
 
 void TextPrinter::parse()
