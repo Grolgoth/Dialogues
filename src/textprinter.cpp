@@ -251,13 +251,16 @@ void TextPrinter::printNext()
 		subject.xposOnSurface = textOffset;
 		subject.yposOnSurface += text_h;
 		subject.lines++;
-		if (subject.renderEffects.size() > 0 && subject.renderEffects[subject.indexCurrentRenderEffect].state == RenderEffect::OPEN && !inRenderEffectIndexes(subject.currentPos))
+		if (subject.indexCurrentRenderEffect >= 0 && subject.indexCurrentRenderEffect < subject.renderEffects.size())
 		{
-			RenderEffect::Type previousType = subject.renderEffects[subject.indexCurrentRenderEffect].type;
-			subject.RenderEffectIndexes.insert(subject.RenderEffectIndexes.begin() + subject.indexCurrentRenderEffect, subject.currentPos);
-			subject.renderEffects.insert(subject.renderEffects.begin() + subject.indexCurrentRenderEffect, RenderEffect(previousType, subject.currentState, font_px, subject.speed));
-			subject.indexCurrentRenderEffect++;
-			updateRenderSettings();
+			if (subject.renderEffects.size() > 0 && subject.renderEffects[subject.indexCurrentRenderEffect].state == RenderEffect::OPEN && !inRenderEffectIndexes(subject.currentPos))
+			{
+				RenderEffect::Type previousType = subject.renderEffects[subject.indexCurrentRenderEffect].type;
+				subject.RenderEffectIndexes.insert(subject.RenderEffectIndexes.begin() + subject.indexCurrentRenderEffect, subject.currentPos);
+				subject.renderEffects.insert(subject.renderEffects.begin() + subject.indexCurrentRenderEffect, RenderEffect(previousType, subject.currentState, font_px, subject.speed));
+				subject.indexCurrentRenderEffect++;
+				updateRenderSettings();
+			}
 		}
 	}
 	SDL_Surface* glyph = glyphs.get((unsigned)characterIndex);
@@ -265,7 +268,7 @@ void TextPrinter::printNext()
 	// space
 	if (character == 32)
 		subject.xposOnSurface += spaceCharExtraW;
-	subject.currentPos ++;
+	subject.currentPos++;
 }
 
 void TextPrinter::handleNewLine()

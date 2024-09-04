@@ -1,16 +1,16 @@
 #include "rendereffect.h"
-#include <fstring.h>
 #include <custom_sdl_functions.h>
 #include "bounce.h"
 #include "spin.h"
 #include "wheelspin.h"
 #include "shake.h"
+#include <fstring.h>
 
 static bool isColor(FString color)
 {
 	if (!color.replace(",", "").allDigits())
 		return false;
-	std::vector<FString> split = color.split(",", true, true);
+	std::vector<FString> split = color.split(",", false, true);
 	if (split.size() != 3)
 		return false;
 	for (FString index : split)
@@ -99,7 +99,7 @@ bool RenderEffect::isValidMetaText(FString metaText)
 			type = Type::COLOR;
 			color.a = 255;
 
-			std::vector<FString> split = metaText.substring(6).split(",", true, true);
+			std::vector<FString> split = metaText.substring(6).split(",", false, true);
 			color.r = split[0].toInt();
 			color.g = split[1].toInt();
 			color.b = split[2].toInt();
