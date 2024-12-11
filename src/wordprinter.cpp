@@ -80,11 +80,16 @@ std::string convertUint16ToUtf8(Uint16 value)
 void WordPrinter::printNext()
 {
 	Uint16 character = subject.convertedText[subject.currentPos];
-	if (character == 10)
+	if (character == 10 && currentWordIndex >= 0 && words.size() > 0)
 	{
 		words[currentWordIndex].x2 = subject.xposOnSurface;
 		handleNewLine();
 		newWord(true);
+		return;
+	}
+	else if (character == 10)
+	{
+		handleNewLine();
 		return;
 	}
 	int characterIndex = characters.getIndex(character);
@@ -95,28 +100,33 @@ void WordPrinter::printNext()
 		subject.lineOffsetsToBoxW.push_back(subject.boxW - subject.xposOnSurface);
 		subject.xposOnSurface = textOffset;
 		subject.yposOnSurface += text_h;
-		if (subject.renderEffects.size() > 0 && subject.renderEffects[subject.indexCurrentRenderEffect].state == RenderEffect::OPEN && !inRenderEffectIndexes(subject.currentPos))
+		subject.lines++;
+		if (subject.indexCurrentRenderEffect >= 0 && subject.indexCurrentRenderEffect < subject.renderEffects.size())
 		{
-			RenderEffect::Type previousType = subject.renderEffects[subject.indexCurrentRenderEffect].type;
-			subject.RenderEffectIndexes.insert(subject.RenderEffectIndexes.begin() + subject.indexCurrentRenderEffect, subject.currentPos);
-			subject.renderEffects.insert(subject.renderEffects.begin() + subject.indexCurrentRenderEffect, RenderEffect(previousType, subject.currentState, font_px, subject.speed));
-			subject.indexCurrentRenderEffect++;
-			updateRenderSettings();
+			if (subject.renderEffects.size() > 0 && subject.renderEffects[subject.indexCurrentRenderEffect].state == RenderEffect::OPEN && !inRenderEffectIndexes(subject.currentPos))
+			{
+				RenderEffect::Type previousType = subject.renderEffects[subject.indexCurrentRenderEffect].type;
+				subject.RenderEffectIndexes.insert(subject.RenderEffectIndexes.begin() + subject.indexCurrentRenderEffect, subject.currentPos);
+				subject.renderEffects.insert(subject.renderEffects.begin() + subject.indexCurrentRenderEffect, RenderEffect(previousType, subject.currentState, font_px, subject.speed));
+				subject.indexCurrentRenderEffect++;
+				updateRenderSettings();
+			}
 		}
 	}
 	SDL_Surface* glyph = glyphs.get((unsigned)characterIndex);
 	printCharacter(glyph, characterIndex);
 	// space
-	if (character != 32)
+	if (character != 32 && currentWordIndex >= 0 && words.size() > 0)
 		words[currentWordIndex].id += convertUint16ToUtf8(character);
 	else if (subject.currentPos < subject.convertedText.size() - 1)
 	{
-		newWord(false, true, characterWidths[characterIndex]);
+		if (currentWordIndex >= 0 && words.size() > 0)
+			newWord(false, true, characterWidths[characterIndex]);
 		subject.xposOnSurface += spaceCharExtraW;
 	}
 	subject.currentPos ++;
 
-	if (subject.currentPos >= subject.convertedText.size())
+	if (subject.currentPos >= subject.convertedText.size() && currentWordIndex >= 0 && words.size() > 0)
 	{
 		words[currentWordIndex].y2 = words[currentWordIndex].y1 + text_h;
 		words[currentWordIndex].x2 = subject.xposOnSurface;
