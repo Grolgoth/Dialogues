@@ -22,7 +22,7 @@ void WordPrinter::startNewText(std::string text, unsigned int boxW, unsigned int
 
 	currentWordIndex = -1;
 	currentSurfaceNumber = number;
-	newWord();
+	newWord(false, false, 0, true);
 
 	unsigned char* textp = U8StringToCharArray(text);
 	checkText(textp, text.length());
@@ -30,9 +30,9 @@ void WordPrinter::startNewText(std::string text, unsigned int boxW, unsigned int
 	calcNumCharsConsideringFrameRate();
 }
 
-void WordPrinter::newWord(bool wasNewline, bool removeSpace, int spaceW)
+void WordPrinter::newWord(bool wasNewline, bool removeSpace, int spaceW, bool newSet)
 {
-	if (words.size() > 0)
+	if (words.size() > 0 && !newSet)
 	{
 		words[currentWordIndex].y2 = words[currentWordIndex].y1 + text_h;
 		if (!wasNewline)

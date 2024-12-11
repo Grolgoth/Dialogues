@@ -22,7 +22,7 @@ class WordPrinter : public TextPrinter
 
 	private:
 		void printNext();
-		void newWord(bool wasNewline = false, bool removeSpace = false, int spaceW = 0);
+		void newWord(bool wasNewline = false, bool removeSpace = false, int spaceW = 0, bool newSet = false);
 		int currentWordIndex = -1;
 		int currentSurfaceNumber = 0;
 
