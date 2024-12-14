@@ -136,12 +136,12 @@ void TextPrinter::removeLastChar()
 			subject.xposOnSurface = subject.boxW - subject.lineOffsetsToBoxW.back();
 			subject.lineOffsetsToBoxW.pop_back();
 			subject.currentPos --;
+			//subject.lines--;
 			return;
 		}
 		int characterIndex = characters.getIndex(subject.convertedText.back());
-		int lastCharWidth = 0;
+		int lastCharWidth = characterWidths[characterIndex];
 
-		lastCharWidth = characterWidths[characterIndex];
 		if (subject.convertedText.back() == 32)
 			subject.xposOnSurface -= spaceCharExtraW;
 
@@ -159,6 +159,35 @@ void TextPrinter::removeLastChar()
 			subject.lineOffsetsToBoxW.pop_back();
 		}
 	}
+}
+
+void TextPrinter::removeChar(int pos, bool deleteChar)
+{
+	if (subject.convertedText[pos] == 32)
+	{
+		subject.xposOnSurface -= spaceCharExtraW;
+	}
+	else if (subject.convertedText[pos] == 10)
+	{
+		if (subject.yposOnSurface >= (textOffset + text_h))
+			subject.yposOnSurface -= text_h;
+		subject.xposOnSurface = subject.boxW - subject.lineOffsetsToBoxW.back();
+		subject.lineOffsetsToBoxW.pop_back();
+		//subject.lines--;
+	}
+	else
+	{
+		int characterIndex = characters.getIndex(subject.convertedText[pos]);
+		int lastCharWidth = characterWidths[characterIndex];
+		subject.xposOnSurface -= lastCharWidth;
+
+		SDL_Rect r = {int(subject.xposOnSurface), int(subject.yposOnSurface), lastCharWidth, text_h};
+		SDL_FillRect(subject.currentState, &r, SDL_MapRGBA(subject.currentState->format, 0, 0, 0, 0));
+	}
+
+	subject.currentPos--;
+	if (deleteChar)
+		subject.convertedText.erase(subject.convertedText.begin() + pos);
 }
 
 void TextPrinter::cleanEntered()
@@ -247,6 +276,24 @@ void TextPrinter::printNext()
 		throw "Fatal Error: character could not be found even after the check if all characters were present passed successfully. (For character with UTF8 decimal value " + FString::fromInt(character).toStdString() + ").";
 	if(subject.xposOnSurface != (unsigned)textOffset && subject.xposOnSurface + characterWidths[characterIndex] >= subject.boxW)
 	{
+		int lettersToBorder = 0;
+		bool fit = true;
+		while (subject.currentPos > 0 && subject.convertedText[subject.currentPos] != 32)
+		{
+			subject.currentPos--;
+			lettersToBorder++;
+			if (subject.convertedText[subject.currentPos] == 10 || subject.currentPos == 1)
+			{
+				fit = false;
+				break;
+			}
+		}
+		subject.currentPos += lettersToBorder;
+		if (fit)
+		{
+			for (int i = 0; i < lettersToBorder - 1; i++)
+				removeChar(subject.currentPos - 1);
+		}
 		subject.lineOffsetsToBoxW.push_back(subject.boxW - subject.xposOnSurface);
 		subject.xposOnSurface = textOffset;
 		subject.yposOnSurface += text_h;
@@ -261,6 +308,11 @@ void TextPrinter::printNext()
 				subject.indexCurrentRenderEffect++;
 				updateRenderSettings();
 			}
+		}
+		while (fit && lettersToBorder > 1)
+		{
+			printNext();
+			lettersToBorder--;
 		}
 	}
 	SDL_Surface* glyph = glyphs.get((unsigned)characterIndex);

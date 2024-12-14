@@ -97,12 +97,32 @@ void WordPrinter::printNext()
 		throw "Fatal Error: character could not be found even after the check if all characters were present passed successfully. (For character with UTF8 decimal value " + FString::fromInt(character).toStdString() + ").";
 	if(subject.xposOnSurface != (unsigned)textOffset && subject.xposOnSurface + characterWidths[characterIndex] >= subject.boxW)
 	{
+		int lettersToBorder = 0;
+		bool fit = true;
+		while (subject.currentPos > 0 && subject.convertedText[subject.currentPos] != 32)
+		{
+			subject.currentPos--;
+			lettersToBorder++;
+			if (subject.convertedText[subject.currentPos] == 10 || subject.currentPos == 1)
+			{
+				fit = false;
+				break;
+			}
+		}
+		subject.currentPos += lettersToBorder;
+		if (fit)
+		{
+			for (int i = 0; i < lettersToBorder - 1; i++)
+				removeChar(subject.currentPos - 1);
+		}
 		subject.lineOffsetsToBoxW.push_back(subject.boxW - subject.xposOnSurface);
 		subject.xposOnSurface = textOffset;
 		subject.yposOnSurface += text_h;
 		subject.lines++;
 		if (currentWordIndex >= 0 && words.size() > 0)
 		{
+			if (fit)
+				words[currentWordIndex].id = "";
 			words[currentWordIndex].y1 += text_h;
 			words[currentWordIndex].x1 = textOffset;
 		}
@@ -116,6 +136,11 @@ void WordPrinter::printNext()
 				subject.indexCurrentRenderEffect++;
 				updateRenderSettings();
 			}
+		}
+		while (fit && lettersToBorder > 1)
+		{
+			printNext();
+			lettersToBorder--;
 		}
 	}
 	SDL_Surface* glyph = glyphs.get((unsigned)characterIndex);

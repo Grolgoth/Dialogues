@@ -25,6 +25,7 @@ class TextPrinter
 		void setExternalEffectInt(int* external);
 		void finish();
 		void removeLastChar();
+		void removeChar(int pos, bool deleteChar = false);
 		void cleanEntered(); // this function seems bad and unnecessary
 		SDL_Surface* getPrinted();
 		SDL_Surface* printCharacters(unsigned int amount);
