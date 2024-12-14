@@ -101,6 +101,11 @@ void WordPrinter::printNext()
 		subject.xposOnSurface = textOffset;
 		subject.yposOnSurface += text_h;
 		subject.lines++;
+		if (currentWordIndex >= 0 && words.size() > 0)
+		{
+			words[currentWordIndex].y1 += text_h;
+			words[currentWordIndex].x1 = textOffset;
+		}
 		if (subject.indexCurrentRenderEffect >= 0 && subject.indexCurrentRenderEffect < subject.renderEffects.size())
 		{
 			if (subject.renderEffects.size() > 0 && subject.renderEffects[subject.indexCurrentRenderEffect].state == RenderEffect::OPEN && !inRenderEffectIndexes(subject.currentPos))
