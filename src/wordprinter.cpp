@@ -216,4 +216,5 @@ void WordPrinter::clearWordsInIndicedSurface(int surface)
 			i--;
 		}
 	}
+	selectedWords.clear();
 }
