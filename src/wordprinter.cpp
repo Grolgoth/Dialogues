@@ -11,6 +11,16 @@ WordPrinter::WordPrinter(File font, unsigned int font_px, Mix_Chunk* sound) : Te
 	//ctor
 }
 
+std::vector<WordPrinter::Word> WordPrinter::getWords(int surfaceNumber)
+{
+	if (words.find(surfaceNumber) == words.end())
+	{
+		std::cout << "ERROR in WordPrinter::getWords: wordset for surfaceNumber " << surfaceNumber << " doesn't exist!" << std::endl;
+		return {};
+	}
+	return words[surfaceNumber];
+}
+
 void WordPrinter::startNewText(std::string text, unsigned int boxW, unsigned int boxH, unsigned int effectSpeed, int number)
 {
 	resetSubject();
@@ -20,8 +30,10 @@ void WordPrinter::startNewText(std::string text, unsigned int boxW, unsigned int
 	subject.speed = effectSpeed >= 3 ? 3 : effectSpeed;
 	mute = false;
 
-	currentWordIndex = -1;
+	selectedWords.clear();
 	currentSurfaceNumber = number;
+	currentWordIndex = -1;
+	words[currentSurfaceNumber] = {};
 	newWord(false, false, 0, true);
 
 	unsigned char* textp = U8StringToCharArray(text);
@@ -32,11 +44,11 @@ void WordPrinter::startNewText(std::string text, unsigned int boxW, unsigned int
 
 void WordPrinter::newWord(bool wasNewline, bool removeSpace, int spaceW, bool newSet)
 {
-	if (words.size() > 0 && !newSet)
+	if (words[currentSurfaceNumber].size() > 0 && !newSet)
 	{
-		words[currentWordIndex].y2 = words[currentWordIndex].y1 + text_h;
+		words[currentSurfaceNumber][currentWordIndex].y2 = words[currentSurfaceNumber][currentWordIndex].y1 + text_h;
 		if (!wasNewline)
-			words[currentWordIndex].x2 = subject.xposOnSurface;
+			words[currentSurfaceNumber][currentWordIndex].x2 = subject.xposOnSurface;
 	}
 
 	currentWordIndex++;
@@ -46,7 +58,7 @@ void WordPrinter::newWord(bool wasNewline, bool removeSpace, int spaceW, bool ne
 		word.x1 += spaceCharExtraW + spaceW;
 	word.y1 = subject.yposOnSurface;
 	word.surfaceNumber = currentSurfaceNumber;
-	words.push_back(word);
+	words[currentSurfaceNumber].push_back(word);
 }
 
 std::string convertUint16ToUtf8(Uint16 value)
@@ -80,9 +92,9 @@ std::string convertUint16ToUtf8(Uint16 value)
 void WordPrinter::printNext()
 {
 	Uint16 character = subject.convertedText[subject.currentPos];
-	if (character == 10 && currentWordIndex >= 0 && words.size() > 0)
+	if (character == 10 && currentWordIndex >= 0 && words[currentSurfaceNumber].size() > 0)
 	{
-		words[currentWordIndex].x2 = subject.xposOnSurface;
+		words[currentSurfaceNumber][currentWordIndex].x2 = subject.xposOnSurface;
 		handleNewLine();
 		newWord(true);
 		return;
@@ -119,12 +131,12 @@ void WordPrinter::printNext()
 		subject.xposOnSurface = textOffset;
 		subject.yposOnSurface += text_h;
 		subject.lines++;
-		if (currentWordIndex >= 0 && words.size() > 0)
+		if (currentWordIndex >= 0 && words[currentSurfaceNumber].size() > 0)
 		{
 			if (fit)
-				words[currentWordIndex].id = "";
-			words[currentWordIndex].y1 += text_h;
-			words[currentWordIndex].x1 = textOffset;
+				words[currentSurfaceNumber][currentWordIndex].id = "";
+			words[currentSurfaceNumber][currentWordIndex].y1 += text_h;
+			words[currentSurfaceNumber][currentWordIndex].x1 = textOffset;
 		}
 		if (subject.indexCurrentRenderEffect >= 0 && subject.indexCurrentRenderEffect < subject.renderEffects.size())
 		{
@@ -146,11 +158,11 @@ void WordPrinter::printNext()
 	SDL_Surface* glyph = glyphs.get((unsigned)characterIndex);
 	printCharacter(glyph, characterIndex);
 	// space
-	if (character != 32 && currentWordIndex >= 0 && words.size() > 0)
-		words[currentWordIndex].id += convertUint16ToUtf8(character);
+	if (character != 32 && currentWordIndex >= 0 && words[currentSurfaceNumber].size() > 0)
+		words[currentSurfaceNumber][currentWordIndex].id += convertUint16ToUtf8(character);
 	else if (subject.currentPos < subject.convertedText.size() - 1)
 	{
-		if (currentWordIndex >= 0 && words.size() > 0)
+		if (currentWordIndex >= 0 && words[currentSurfaceNumber].size() > 0)
 			newWord(false, true, characterWidths[characterIndex]);
 		subject.xposOnSurface += spaceCharExtraW;
 	}
@@ -158,48 +170,45 @@ void WordPrinter::printNext()
 
 	if (subject.currentPos >= subject.convertedText.size() && currentWordIndex >= 0 && words.size() > 0)
 	{
-		words[currentWordIndex].y2 = words[currentWordIndex].y1 + text_h;
-		words[currentWordIndex].x2 = subject.xposOnSurface;
+		words[currentSurfaceNumber][currentWordIndex].y2 = words[currentSurfaceNumber][currentWordIndex].y1 + text_h;
+		words[currentSurfaceNumber][currentWordIndex].x2 = subject.xposOnSurface;
 	}
 }
 
 void WordPrinter::trimWords(int surface)
 {
-	for (int i = 0; i < words.size(); i++)
+	for (int i = 0; i < words[surface].size(); i++)
 	{
-		if (words[i].surfaceNumber == surface)
+		for (int counter = 0; counter < 2; counter++)
 		{
-			for (int counter = 0; counter < 2; counter++)
+			char c = words[surface][i].id[0]; //first time we check the first char
+			if (counter == 1)
+				c = words[surface][i].id.back(); //second time we check the last char
+			if (!std::isalpha(c) && c != '-' && c != '\'') //subtract width from thw word's box if the character is not alpha or ' or -
 			{
-				char c = words[i].id[0]; //first time we check the first char
-				if (counter == 1)
-					c = words[i].id.back(); //second time we check the last char
-				if (!std::isalpha(c) && c != '-' && c != '\'') //subtract width from thw word's box if the character is not alpha or ' or -
+				Uint16 char16 = 0;
+				int characterIndex = 0;
+				int width = 0;
+				bool oneByteChar = true;
+				if (c > 0x00 && c <= 0x7F)
+					char16 = int(c);
+				if (char16 != 0) // one byte char
 				{
-					Uint16 char16 = 0;
-					int characterIndex = 0;
-					int width = 0;
-					bool oneByteChar = true;
-					if (c > 0x00 && c <= 0x7F)
-						char16 = int(c);
-					if (char16 != 0) // one byte char
-					{
-						characterIndex = characters.getIndex(char16);
-						width = characterWidths[characterIndex];
-					}
-					else // multiple byte char; not a punctuation mark but actually part of the word. Leave it alone
-						continue;
+					characterIndex = characters.getIndex(char16);
+					width = characterWidths[characterIndex];
+				}
+				else // multiple byte char; not a punctuation mark but actually part of the word. Leave it alone
+					continue;
 
-					if (counter == 0)
-					{
-						words[i].x1 += width; //first char needs to be removed so the box beginning gets a +
-						words[i].id.erase(0, 1);
-					}
-					else
-					{
-						words[i].x2 -= width; //last char needs to be removed so shrink the box width (x2 gets a -)
-						words[i].id.pop_back();
-					}
+				if (counter == 0)
+				{
+					words[surface][i].x1 += width; //first char needs to be removed so the box beginning gets a +
+					words[surface][i].id.erase(0, 1);
+				}
+				else
+				{
+					words[surface][i].x2 -= width; //last char needs to be removed so shrink the box width (x2 gets a -)
+					words[surface][i].id.pop_back();
 				}
 			}
 		}
@@ -208,13 +217,6 @@ void WordPrinter::trimWords(int surface)
 
 void WordPrinter::clearWordsInIndicedSurface(int surface)
 {
-	for (int i = 0; i < words.size(); i++)
-	{
-		if (words[i].surfaceNumber == surface)
-		{
-			words.erase(words.begin() + i);
-			i--;
-		}
-	}
+	words[surface] = {};
 	selectedWords.clear();
 }

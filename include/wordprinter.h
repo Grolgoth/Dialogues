@@ -12,9 +12,9 @@ class WordPrinter : public TextPrinter
 		};
 
 		WordPrinter(File font, unsigned int font_px, Mix_Chunk* sound = nullptr);
-		inline std::vector<Word> getWords() {return words;}
 		std::vector<int> selectedWords;
 		inline int getCurrentSurfaceNumber() {return currentSurfaceNumber;}
+		std::vector<Word> getWords(int surfaceNumber);
 
 		void startNewText(std::string text, unsigned int boxW, unsigned int boxH, unsigned int effectSpeed, int number);
 		void trimWords(int surface);
@@ -26,7 +26,7 @@ class WordPrinter : public TextPrinter
 		int currentWordIndex = -1;
 		int currentSurfaceNumber = 0;
 
-		std::vector<Word> words;
+		std::map<int, std::vector<Word>> words;
 };
 
 #endif // WORDPRINTER_H
