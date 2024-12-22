@@ -679,3 +679,11 @@ std::string TextPrinter::subjectTextToSimpleString()
 	}
 	return text;
 }
+
+unsigned int TextPrinter::getPrintedTextW()
+{
+	if (subject.lines > 1)
+		return subject.boxW;
+	else
+		return subject.xposOnSurface;
+}
