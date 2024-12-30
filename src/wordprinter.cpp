@@ -179,6 +179,8 @@ void WordPrinter::trimWords(int surface)
 {
 	for (int i = 0; i < words[surface].size(); i++)
 	{
+		if (!finished() && i == words[surface].size() - 1)
+			return;
 		for (int counter = 0; counter < 2; counter++)
 		{
 			char c = words[surface][i].id[0]; //first time we check the first char
