@@ -172,6 +172,7 @@ void WordPrinter::printNext()
 	{
 		words[currentSurfaceNumber][currentWordIndex].y2 = words[currentSurfaceNumber][currentWordIndex].y1 + text_h;
 		words[currentSurfaceNumber][currentWordIndex].x2 = subject.xposOnSurface;
+		textWidths[currentSurfaceNumber] = getPrintedTextW();
 	}
 }
 
@@ -186,7 +187,7 @@ void WordPrinter::trimWords(int surface)
 			char c = words[surface][i].id[0]; //first time we check the first char
 			if (counter == 1)
 				c = words[surface][i].id.back(); //second time we check the last char
-			if (!std::isalpha(c) && c != '-' && c != '\'') //subtract width from thw word's box if the character is not alpha or ' or -
+			if (!std::isalpha(c)) //subtract width from thw word's box if the character is not alpha or ' or -
 			{
 				Uint16 char16 = 0;
 				int characterIndex = 0;
@@ -221,4 +222,12 @@ void WordPrinter::clearWordsInIndicedSurface(int surface)
 {
 	words[surface] = {};
 	selectedWords.clear();
+	textWidths[surface] = -1;
+}
+
+int WordPrinter::getTextWidth(int surfaceNumber)
+{
+	if (textWidths.find(surfaceNumber) != textWidths.end())
+		return textWidths[surfaceNumber];
+	return -1;
 }

@@ -15,6 +15,7 @@ class WordPrinter : public TextPrinter
 		std::vector<int> selectedWords;
 		inline int getCurrentSurfaceNumber() {return currentSurfaceNumber;}
 		std::vector<Word> getWords(int surfaceNumber);
+		int getTextWidth(int surfaceNumber);
 
 		void startNewText(std::string text, unsigned int boxW, unsigned int boxH, unsigned int effectSpeed, int number);
 		void trimWords(int surface);
@@ -27,6 +28,7 @@ class WordPrinter : public TextPrinter
 		int currentSurfaceNumber = 0;
 
 		std::map<int, std::vector<Word>> words;
+		std::map<int, int> textWidths;
 };
 
 #endif // WORDPRINTER_H
