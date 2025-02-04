@@ -189,6 +189,8 @@ void WordPrinter::trimWords(int surface)
 				c = words[surface][i].id.back(); //second time we check the last char
 			if (!std::isalpha(c)) //subtract width from thw word's box if the character is not alpha or ' or -
 			{
+				if (c >= '0' && c <= '9') // is a digit; leave it alone
+					continue;
 				Uint16 char16 = 0;
 				int characterIndex = 0;
 				int width = 0;
