@@ -39,6 +39,7 @@ class TextPrinter
 		inline int getHighestChar() {return highestChar;}
 		inline int getFontSize() {return font_px;}
 		inline int getNumLines() {return subject.lines;}
+		inline int getRecommendedLineHeight() {return recommendedLineHeight;}
 
 	protected:
 		TextPrinter(const TextPrinter& other);
@@ -70,6 +71,7 @@ class TextPrinter
 		bool mute = false;
 		int spaceCharExtraW = 0;
 		int text_h = 0;
+		int recommendedLineHeight = 0;
 		int highestChar = 0;
 		int textOffset = 0;
 		int* externalEffectInt = nullptr; //Can be used to change different things such as npc portrait index or whatever else you want

@@ -6,7 +6,7 @@
 #include <math.h>
 #include <SDL_mixer.h>
 
-TextPrinter::TextPrinter(File font, unsigned int font_px, Mix_Chunk* sound) : font(font), font_px(font_px), sound(sound), textOffset(font_px / 2), characters(true)
+TextPrinter::TextPrinter(File font, unsigned int font_px, Mix_Chunk* sound) : font(font), font_px(font_px), sound(sound), textOffset(0), characters(true)
 {
 	if (!TTF_WasInit())
 		throw "Can't create TextPrinter object. TTF library was not initialized. Call TTF_Init() first.";
@@ -34,6 +34,7 @@ void TextPrinter::integrityCheck()
 		throw "ERROR: TextPrinter could not be created, specified font size is too small (font size cannot be smaller than 6 px).";
 	if (!font.exists())
 		throw "ERROR: TextPrinter could not be created, font specified at " + font.getAbsolutePath() + " could not be found.";
+	text_h = 1.5 * (double)font_px;
 	loadFaceFromFile();
 }
 
@@ -44,11 +45,15 @@ void TextPrinter::loadFaceFromFile()
 	TTF_Font* fontstruct = TTF_OpenFont(font.getAbsolutePath().c_str(), font_px);
 	if (fontstruct == nullptr)
 		throw TTF_GetError();
+	FT_Face fontFace = TTF_GetFontFace(fontstruct);
+	if (!fontFace)
+		throw "Failed to get FT_Face";
+	recommendedLineHeight = (fontFace->size->metrics.ascender - fontFace->size->metrics.descender) >> 6;
 	FT_ULong charcode;
 	FT_UInt gindex;
 	SDL_Color defaultColor; defaultColor.a = 255; defaultColor.b = 0; defaultColor.g = 0; defaultColor.r = 0;
 
-	charcode = FT_Get_First_Char(TTF_GetFontFace(fontstruct), &gindex );
+	charcode = FT_Get_First_Char(fontFace, &gindex );
 	while ( gindex != 0 )
 	{
 		characters.push_back(charcode);
@@ -57,7 +62,6 @@ void TextPrinter::loadFaceFromFile()
 		characterWidths.push_back(maxx);
 		if (charcode == 69)
 			spaceCharExtraW = maxx;
-		text_h = 1.5 * (double)font_px;
 		if (maxy > highestChar)
 			highestChar = maxy;
 		glyphs.push_back(TTF_RenderGlyph_Solid(fontstruct, charcode, defaultColor));
