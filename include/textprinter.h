@@ -37,6 +37,7 @@ class TextPrinter
 		inline int getNumCharsConsideringFrameRate() {return subject.numCharsConsideringFrameRate;}
 		inline int getCurrentFPC() {return subject.currentFPC;}
 		inline int getHighestChar() {return highestChar;}
+		inline int getWidestChar() {return spaceCharExtraW;}
 		inline int getFontSize() {return font_px;}
 		inline int getNumLines() {return subject.lines;}
 		inline int getRecommendedLineHeight() {return recommendedLineHeight;}
